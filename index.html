@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ItzYUG — Full Stack &amp; AI Developer, Cloud Infrastructure Engineer</title>
+<meta name="description" content="ItzYUG — Founder of CrazeDev Studio, Co-founder of Hexium Nodes, Co-owner of StoneNodes. Full stack development, AI solutions, Discord bots, cloud infrastructure and Minecraft development.">
+<meta name="theme-color" content="#06080d">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- GSAP -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<!-- Lenis smooth scroll -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lenis/1.1.13/lenis.min.js"></script>
+
+<!-- Three.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+/* ========================================================================
+   ITZYUG — PORTFOLIO / DESIGN TOKENS
+   Concept: "Live Infrastructure" — the visual language of an uptime
+   monitor / network topology map, grounded in the fact that this is a
+   hosting & infra founder's site. Terminal path nav (~/about), signal
+   status colors (live/building), monospace data readouts.
+   ======================================================================== */
+:root{
+  /* color */
+  --void:#06080d;
+  --surface:#0c1119;
+  --surface-2:#111826;
+  --surface-3:#161f30;
+  --border:rgba(255,255,255,0.09);
+  --border-strong:rgba(255,255,255,0.16);
+  --text:#edf1f7;
+  --text-muted:#8b95a7;
+  --text-faint:#5a6273;
+  --accent:#4fd1ff;
+  --accent-2:#7c8cff;
+  --accent-soft:rgba(79,209,255,0.12);
+  --live:#35d68c;
+  --dev:#ffb454;
+  --danger:#ff6b6b;
+  --grad-accent:linear-gradient(135deg,#4fd1ff 0%,#7c8cff 100%);
+
+  /* type */
+  --f-display:'Space Grotesk',sans-serif;
+  --f-body:'Inter',sans-serif;
+  --f-mono:'JetBrains Mono',monospace;
+
+  /* layout */
+  --nav-h:76px;
+  --container:1240px;
+  --radius-s:10px;
+  --radius-m:16px;
+  --radius-l:24px;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:auto;background:var(--void);}
+html.lenis, html.lenis body{height:auto;}
+.lenis.lenis-smooth{scroll-behavior:auto;}
+body{
+  font-family:var(--f-body);
+  background:var(--void);
+  color:var(--text);
+  overflow-x:hidden;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+  cursor:none;
+}
+@media (max-width:860px), (hover:none){
+  body{cursor:auto;}
+}
+a{color:inherit;text-decoration:none;}
+button{font-family:inherit;cursor:pointer;background:none;border:none;color:inherit;}
+input,textarea,select{font-family:inherit;color:inherit;}
+img{max-width:100%;display:block;}
+ul{list-style:none;}
+::selection{background:var(--accent);color:var(--void);}
+
+h1,h2,h3,h4{font-family:var(--f-display);font-weight:600;letter-spacing:-0.02em;line-height:1.05;}
+.eyebrow{
+  font-family:var(--f-mono);
+  font-size:12.5px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--accent);
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.eyebrow::before{
+  content:'';
+  width:6px;height:6px;border-radius:50%;
+  background:var(--accent);
+  box-shadow:0 0 8px 2px var(--accent-soft);
+}
+
+.container{max-width:var(--container);margin:0 auto;padding:0 32px;}
+@media (max-width:640px){.container{padding:0 20px;}}
+
+::-webkit-scrollbar{width:10px;}
+::-webkit-scrollbar-track{background:var(--void);}
+::-webkit-scrollbar-thumb{background:var(--surface-3);border-radius:8px;}
+::-webkit-scrollbar-thumb:hover{background:var(--accent);}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
+
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:0.001ms !important;animation-iteration-count:1 !important;transition-duration:0.001ms !important;scroll-behavior:auto !important;}
+}
+
+/* noise texture overlay */
+.noise{
+  position:fixed;inset:0;z-index:2;pointer-events:none;opacity:.035;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* webgl background */
+#webgl-bg{position:fixed;inset:0;z-index:0;pointer-events:none;}
+.bg-grid{
+  position:fixed;inset:0;z-index:1;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(255,255,255,.028) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 70% 60% at 50% 0%, #000 40%, transparent 90%);
+}
+.bg-glow{
+  position:fixed;top:-20%;left:50%;translate:-50% 0;
+  width:900px;height:900px;z-index:0;pointer-events:none;
+  background:radial-gradient(circle,rgba(79,209,255,.14) 0%,transparent 65%);
+  filter:blur(10px);
+}
+
+/* ============ CUSTOM CURSOR ============ */
+#cursor-dot,#cursor-ring{
+  position:fixed;top:0;left:0;z-index:9999;pointer-events:none;
+  border-radius:50%;transform:translate(-50%,-50%);
+}
+#cursor-dot{width:6px;height:6px;background:var(--accent);}
+#cursor-ring{
+  width:34px;height:34px;border:1px solid rgba(79,209,255,.5);
+  transition:width .25s var(--ease),height .25s var(--ease),border-color .25s var(--ease),background .25s var(--ease);
+}
+#cursor-ring.is-hover{width:64px;height:64px;background:rgba(79,209,255,.08);border-color:var(--accent);}
+#cursor-ring.is-down{width:26px;height:26px;}
+@media (max-width:860px), (hover:none){#cursor-dot,#cursor-ring{display:none;}}
+
+/* ============ LOADER ============ */
+#loader{
+  position:fixed;inset:0;z-index:10000;background:var(--void);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:22px;
+}
+#loader .loader-mark{
+  font-family:var(--f-mono);font-size:13px;letter-spacing:.18em;color:var(--text-muted);
+  display:flex;align-items:center;gap:10px;
+}
+#loader .loader-mark .dot{width:6px;height:6px;border-radius:50%;background:var(--live);box-shadow:0 0 8px 2px rgba(53,214,140,.6);animation:pulse-dot 1.4s ease-in-out infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1;}50%{opacity:.3;}}
+#loader .loader-word{font-family:var(--f-display);font-size:clamp(28px,5vw,44px);font-weight:600;letter-spacing:-0.02em;overflow:hidden;}
+#loader .loader-bar-track{width:220px;height:2px;background:var(--surface-3);position:relative;overflow:hidden;border-radius:2px;}
+#loader .loader-bar-fill{position:absolute;inset:0 100% 0 0;background:var(--grad-accent);border-radius:2px;}
+#loader .loader-pct{font-family:var(--f-mono);font-size:12px;color:var(--text-faint);}
+
+/* ============ NAV ============ */
+#site-nav{
+  position:fixed;top:0;left:0;right:0;z-index:500;
+  height:var(--nav-h);display:flex;align-items:center;
+  transition:background .4s var(--ease),border-color .4s var(--ease),backdrop-filter .4s var(--ease);
+  border-bottom:1px solid transparent;
+}
+#site-nav.scrolled{background:rgba(6,8,13,.72);backdrop-filter:blur(16px);border-color:var(--border);}
+#site-nav .nav-inner{width:100%;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{display:flex;align-items:center;gap:10px;font-family:var(--f-display);font-weight:600;font-size:18px;letter-spacing:-.01em;}
+.nav-logo .logo-glyph{
+  width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+  background:var(--grad-accent);color:var(--void);font-family:var(--f-mono);font-weight:600;font-size:13px;
+}
+.nav-links{display:flex;align-items:center;gap:4px;font-family:var(--f-mono);font-size:13px;}
+.nav-links a{
+  padding:9px 15px;border-radius:20px;color:var(--text-muted);position:relative;transition:color .25s;
+}
+.nav-links a:hover{color:var(--text);}
+.nav-links a.active{color:var(--accent);}
+.nav-links a.active::after{content:'';position:absolute;left:15px;right:15px;bottom:2px;height:1px;background:var(--accent);}
+.nav-right{display:flex;align-items:center;gap:14px;}
+.nav-status{
+  display:flex;align-items:center;gap:7px;font-family:var(--f-mono);font-size:11.5px;color:var(--text-faint);
+  padding:6px 12px;border:1px solid var(--border);border-radius:20px;
+}
+.nav-status .pulse{width:6px;height:6px;border-radius:50%;background:var(--live);box-shadow:0 0 6px 2px rgba(53,214,140,.5);animation:pulse-dot 2s ease-in-out infinite;}
+.kbd-hint{
+  font-family:var(--f-mono);font-size:11px;color:var(--text-faint);border:1px solid var(--border);
+  padding:5px 9px;border-radius:6px;display:flex;align-items:center;gap:4px;
+}
+.hamburger{
+  width:44px;height:44px;border-radius:10px;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;
+}
+.hamburger span{width:16px;height:1.5px;background:var(--text);transition:transform .3s var(--ease),opacity .3s var(--ease);}
+@media (min-width:861px){.hamburger{display:none;}}
+@media (max-width:860px){.nav-links,.nav-status,.kbd-hint{display:none;}}
+
+/* ============ BUTTONS ============ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:9px;
+  font-family:var(--f-mono);font-size:13px;font-weight:500;letter-spacing:.01em;
+  padding:13px 24px;border-radius:10px;white-space:nowrap;position:relative;overflow:hidden;
+  transition:transform .3s var(--ease),border-color .3s,background .3s;
+}
+.btn-primary{background:var(--grad-accent);color:var(--void);font-weight:600;}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px -8px rgba(79,209,255,.5);}
+.btn-ghost{border:1px solid var(--border-strong);color:var(--text);}
+.btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
+.btn-sm{padding:9px 16px;font-size:12px;}
+.magnetic{will-change:transform;}
+
+/* ============ CARDS / GLASS ============ */
+.glass{
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.015));
+  border:1px solid var(--border);
+  border-radius:var(--radius-m);
+  backdrop-filter:blur(20px);
+}
+.card{
+  padding:28px;position:relative;overflow:hidden;transition:border-color .35s,transform .35s var(--ease);
+}
+.card:hover{border-color:var(--border-strong);}
+.card::before{
+  content:'';position:absolute;inset:0;opacity:0;transition:opacity .4s;pointer-events:none;
+  background:radial-gradient(320px circle at var(--mx,50%) var(--my,50%),rgba(79,209,255,.10),transparent 60%);
+}
+.card:hover::before{opacity:1;}
+
+.status-chip{
+  display:inline-flex;align-items:center;gap:7px;font-family:var(--f-mono);font-size:11.5px;
+  padding:5px 11px;border-radius:20px;border:1px solid var(--border);
+}
+.status-chip .dot{width:6px;height:6px;border-radius:50%;}
+.status-chip.live .dot{background:var(--live);box-shadow:0 0 6px 2px rgba(53,214,140,.5);}
+.status-chip.live{color:var(--live);border-color:rgba(53,214,140,.3);}
+.status-chip.dev .dot{background:var(--dev);box-shadow:0 0 6px 2px rgba(255,180,84,.5);animation:pulse-dot 1.6s ease-in-out infinite;}
+.status-chip.dev{color:var(--dev);border-color:rgba(255,180,84,.3);}
+
+/* ============ MOBILE FULLSCREEN MENU ============ */
+#mobile-menu{
+  position:fixed;inset:0;z-index:600;visibility:hidden;
+  display:flex;flex-direction:column;
+}
+#mobile-menu .mm-bg{
+  position:absolute;inset:0;background:rgba(6,8,13,.86);backdrop-filter:blur(28px);
+}
+#mobile-menu .mm-blob{
+  position:absolute;border-radius:50%;filter:blur(60px);opacity:.5;
+}
+#mobile-menu .mm-blob.b1{width:340px;height:340px;background:radial-gradient(circle,rgba(79,209,255,.4),transparent 70%);top:-80px;left:-80px;}
+#mobile-menu .mm-blob.b2{width:300px;height:300px;background:radial-gradient(circle,rgba(124,140,255,.35),transparent 70%);bottom:-60px;right:-60px;}
+#mobile-menu .mm-top{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:24px 24px;height:var(--nav-h);}
+#mobile-menu .mm-close{
+  width:44px;height:44px;border-radius:10px;border:1px solid var(--border-strong);
+  display:flex;align-items:center;justify-content:center;font-size:16px;
+}
+#mobile-menu .mm-links{
+  position:relative;z-index:2;flex:1;display:flex;flex-direction:column;justify-content:center;gap:6px;padding:0 28px;
+}
+#mobile-menu .mm-link{
+  display:flex;align-items:baseline;gap:16px;padding:14px 6px;border-bottom:1px solid var(--border);
+  opacity:0;transform:translateY(24px);
+}
+#mobile-menu .mm-link .mm-num{font-family:var(--f-mono);font-size:12px;color:var(--accent);}
+#mobile-menu .mm-link .mm-label{font-family:var(--f-display);font-size:clamp(30px,9vw,46px);font-weight:600;letter-spacing:-.02em;}
+#mobile-menu .mm-foot{position:relative;z-index:2;padding:24px 28px 36px;display:flex;gap:18px;font-size:18px;color:var(--text-muted);}
+#mobile-menu .mm-foot a{width:42px;height:42px;border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+body.menu-open{overflow:hidden;}
+
+/* ============ COMMAND PALETTE ============ */
+#cmdk{
+  position:fixed;inset:0;z-index:700;display:flex;align-items:flex-start;justify-content:center;
+  padding-top:14vh;visibility:hidden;opacity:0;transition:opacity .25s;
+}
+#cmdk.open{visibility:visible;opacity:1;}
+#cmdk .cmdk-bg{position:absolute;inset:0;background:rgba(6,8,13,.7);backdrop-filter:blur(6px);}
+#cmdk .cmdk-panel{
+  position:relative;width:min(560px,90vw);border-radius:var(--radius-m);overflow:hidden;
+  background:var(--surface-2);border:1px solid var(--border-strong);
+  box-shadow:0 30px 80px -20px rgba(0,0,0,.7);
+  transform:translateY(-14px) scale(.97);transition:transform .3s var(--ease);
+}
+#cmdk.open .cmdk-panel{transform:translateY(0) scale(1);}
+#cmdk .cmdk-input-row{display:flex;align-items:center;gap:12px;padding:16px 18px;border-bottom:1px solid var(--border);}
+#cmdk .cmdk-input-row i{color:var(--text-faint);}
+#cmdk input{flex:1;background:none;border:none;color:var(--text);font-size:15px;outline:none;}
+#cmdk .cmdk-list{max-height:320px;overflow-y:auto;padding:8px;}
+#cmdk .cmdk-item{
+  display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:8px;color:var(--text-muted);font-size:14px;
+}
+#cmdk .cmdk-item i{width:16px;text-align:center;color:var(--text-faint);}
+#cmdk .cmdk-item.active{background:var(--accent-soft);color:var(--text);}
+#cmdk .cmdk-item.active i{color:var(--accent);}
+#cmdk .cmdk-item .tag{margin-left:auto;font-family:var(--f-mono);font-size:10.5px;color:var(--text-faint);}
+
+/* ============ PAGE / HERO GENERIC ============ */
+#app{position:relative;z-index:3;min-height:100vh;}
+.page{padding-top:calc(var(--nav-h) + 40px);}
+.hero{min-height:calc(100vh - var(--nav-h));display:flex;flex-direction:column;justify-content:center;padding:60px 0 80px;}
+.hero-kicker{margin-bottom:22px;}
+.hero-title{font-size:clamp(40px,7vw,84px);margin-bottom:22px;max-width:16ch;}
+.hero-title .accent-text{background:var(--grad-accent);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero-sub{font-size:clamp(15px,2vw,18px);color:var(--text-muted);max-width:52ch;line-height:1.65;margin-bottom:38px;}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:56px;}
+.section{padding:110px 0;position:relative;}
+.section-head{margin-bottom:52px;max-width:640px;}
+.section-title{font-size:clamp(28px,4vw,42px);margin-top:16px;}
+.section-desc{color:var(--text-muted);margin-top:14px;line-height:1.6;max-width:56ch;}
+
+.reveal{opacity:0;transform:translateY(34px);}
+
+/* stat strip */
+.stat-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius-m);overflow:hidden;}
+.stat-cell{background:var(--surface);padding:26px 22px;}
+.stat-num{font-family:var(--f-display);font-size:clamp(26px,3.4vw,38px);font-weight:600;}
+.stat-label{font-family:var(--f-mono);font-size:11.5px;color:var(--text-faint);margin-top:6px;text-transform:uppercase;letter-spacing:.06em;}
+
+/* venture / service cards */
+.venture-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius-l);overflow:hidden;}
+.venture-card{background:var(--surface);padding:34px 30px;display:flex;flex-direction:column;gap:16px;min-height:280px;}
+.venture-card .v-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.venture-card .v-name{font-family:var(--f-display);font-size:22px;font-weight:600;}
+.venture-card .v-role{font-family:var(--f-mono);font-size:11.5px;color:var(--text-faint);margin-top:4px;text-transform:uppercase;letter-spacing:.05em;}
+.venture-card .v-desc{color:var(--text-muted);line-height:1.65;font-size:14.5px;flex:1;}
+.venture-card .v-foot{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--border);}
+
+/* project cards */
+.project-card{border-radius:var(--radius-l);overflow:hidden;margin-bottom:28px;}
+.project-banner{height:280px;position:relative;background:var(--surface-2);overflow:hidden;}
+.project-banner img{width:100%;height:100%;object-fit:cover;}
+.project-banner .pb-fallback{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-family:var(--f-mono);font-size:13px;color:var(--text-faint);gap:10px;
+  background:
+    radial-gradient(circle at 30% 20%,rgba(79,209,255,.14),transparent 55%),
+    radial-gradient(circle at 80% 80%,rgba(124,140,255,.12),transparent 55%);
+}
+.project-body{padding:32px;}
+.project-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:14px;flex-wrap:wrap;}
+.project-title{font-family:var(--f-display);font-size:26px;font-weight:600;}
+.project-desc{color:var(--text-muted);line-height:1.7;margin-bottom:22px;max-width:70ch;}
+.tag-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px;}
+.tag{font-family:var(--f-mono);font-size:11px;padding:6px 11px;border-radius:6px;background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border);}
+.feature-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 20px;margin-bottom:26px;}
+.feature-list li{display:flex;align-items:flex-start;gap:9px;font-size:13.5px;color:var(--text-muted);}
+.feature-list li i{color:var(--live);margin-top:3px;font-size:11px;}
+.project-links{display:flex;gap:12px;flex-wrap:wrap;}
+.gallery-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-top:20px;}
+.gallery-row .g-item{aspect-ratio:4/3;border-radius:10px;overflow:hidden;background:var(--surface-2);}
+.gallery-row .g-item img{width:100%;height:100%;object-fit:cover;}
+
+/* products */
+.filter-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:36px;}
+.filter-chip{font-family:var(--f-mono);font-size:12px;padding:8px 16px;border-radius:20px;border:1px solid var(--border);color:var(--text-muted);}
+.filter-chip.active{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px;}
+.product-card{border-radius:var(--radius-m);overflow:hidden;display:flex;flex-direction:column;}
+.product-media{aspect-ratio:16/10;background:var(--surface-2);position:relative;overflow:hidden;}
+.product-media img{width:100%;height:100%;object-fit:cover;}
+.product-media .p-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--text-faint);font-size:26px;}
+.product-badges{position:absolute;top:12px;left:12px;display:flex;gap:6px;}
+.badge{font-family:var(--f-mono);font-size:10.5px;padding:5px 10px;border-radius:20px;}
+.badge.featured{background:rgba(79,209,255,.16);color:var(--accent);border:1px solid rgba(79,209,255,.35);}
+.badge.sale{background:rgba(255,107,107,.16);color:var(--danger);border:1px solid rgba(255,107,107,.35);}
+.product-info{padding:20px;display:flex;flex-direction:column;gap:10px;flex:1;}
+.product-cat{font-family:var(--f-mono);font-size:10.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.06em;}
+.product-title{font-family:var(--f-display);font-size:17px;font-weight:600;}
+.product-desc{font-size:13px;color:var(--text-muted);line-height:1.55;flex:1;}
+.product-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.product-foot{display:flex;align-items:center;justify-content:space-between;padding-top:12px;margin-top:auto;border-top:1px solid var(--border);}
+.product-price{font-family:var(--f-mono);font-weight:600;color:var(--text);}
+.product-price .strike{color:var(--text-faint);text-decoration:line-through;font-weight:400;font-size:12px;margin-right:6px;}
+.empty-state{
+  grid-column:1/-1;text-align:center;padding:80px 20px;border:1px dashed var(--border-strong);border-radius:var(--radius-l);
+}
+.empty-state i{font-size:30px;color:var(--text-faint);margin-bottom:16px;}
+.empty-state h3{font-family:var(--f-display);font-size:20px;margin-bottom:8px;}
+.empty-state p{color:var(--text-muted);font-size:14px;max-width:40ch;margin:0 auto;}
+
+/* contact */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius-l);overflow:hidden;}
+@media (max-width:860px){.contact-grid{grid-template-columns:1fr;}}
+.contact-pane{background:var(--surface);padding:40px;}
+.contact-item{display:flex;align-items:center;gap:16px;padding:16px 0;border-bottom:1px solid var(--border);}
+.contact-item:last-child{border-bottom:none;}
+.contact-item .ci-icon{width:44px;height:44px;border-radius:10px;background:var(--surface-2);display:flex;align-items:center;justify-content:center;color:var(--accent);flex-shrink:0;}
+.contact-item .ci-label{font-family:var(--f-mono);font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;}
+.contact-item .ci-value{font-family:var(--f-mono);font-size:14.5px;margin-top:3px;}
+.contact-item .ci-copy{margin-left:auto;font-size:12px;color:var(--text-faint);}
+.form-field{margin-bottom:18px;}
+.form-field label{display:block;font-family:var(--f-mono);font-size:11.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.form-field input,.form-field textarea{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;
+  padding:13px 15px;font-size:14px;transition:border-color .25s;resize:vertical;
+}
+.form-field input:focus,.form-field textarea:focus{border-color:var(--accent);outline:none;}
+.form-field.error input,.form-field.error textarea{border-color:var(--danger);}
+.form-error-msg{font-size:12px;color:var(--danger);margin-top:6px;font-family:var(--f-mono);display:none;}
+.form-field.error .form-error-msg{display:block;}
+.form-note{font-size:12.5px;color:var(--text-faint);margin-top:14px;}
+
+/* footer */
+#site-footer{border-top:1px solid var(--border);padding:56px 0 40px;position:relative;z-index:3;}
+.footer-top{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:32px;margin-bottom:40px;}
+.footer-links{display:flex;gap:28px;font-family:var(--f-mono);font-size:13px;color:var(--text-muted);flex-wrap:wrap;}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;padding-top:24px;border-top:1px solid var(--border);font-family:var(--f-mono);font-size:11.5px;color:var(--text-faint);}
+.footer-socials{display:flex;gap:10px;}
+.footer-socials a{width:36px;height:36px;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-muted);}
+
+/* toast */
+#toast{
+  position:fixed;bottom:28px;left:50%;translate:-50% 20px;z-index:9000;
+  background:var(--surface-2);border:1px solid var(--border-strong);border-radius:12px;
+  padding:14px 20px;display:flex;align-items:center;gap:10px;font-size:13.5px;
+  opacity:0;pointer-events:none;transition:opacity .3s,translate .3s var(--ease);
+  box-shadow:0 20px 50px -15px rgba(0,0,0,.6);
+}
+#toast.show{opacity:1;translate:-50% 0;}
+#toast i{color:var(--live);}
+
+/* scroll progress */
+#scroll-progress{position:fixed;top:0;left:0;height:2px;background:var(--grad-accent);z-index:900;width:0%;}
+
+/* ============ ADMIN ============ */
+#admin-root{position:fixed;inset:0;z-index:8000;background:var(--void);display:none;overflow-y:auto;}
+#admin-root.open{display:block;}
+
+.admin-login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;position:relative;}
+.admin-login-card{width:min(400px,100%);padding:40px 34px;position:relative;z-index:2;}
+.admin-login-card .al-icon{
+  width:52px;height:52px;border-radius:12px;background:var(--grad-accent);color:var(--void);
+  display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:22px;
+}
+.admin-login-card h2{font-size:24px;margin-bottom:8px;}
+.admin-login-card p{color:var(--text-muted);font-size:13.5px;margin-bottom:28px;line-height:1.6;}
+.admin-login-card .btn{width:100%;margin-top:6px;}
+.admin-back{position:absolute;top:28px;left:28px;font-family:var(--f-mono);font-size:12.5px;color:var(--text-faint);display:flex;align-items:center;gap:8px;z-index:2;}
+
+.admin-shell{display:flex;min-height:100vh;}
+.admin-sidebar{
+  width:250px;flex-shrink:0;border-right:1px solid var(--border);padding:26px 18px;
+  display:flex;flex-direction:column;position:sticky;top:0;height:100vh;
+}
+.admin-sidebar .as-brand{font-family:var(--f-mono);font-size:12px;color:var(--text-faint);padding:0 10px 22px;letter-spacing:.06em;}
+.admin-nav-item{
+  display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;color:var(--text-muted);
+  font-size:13.5px;margin-bottom:2px;
+}
+.admin-nav-item i{width:16px;text-align:center;}
+.admin-nav-item:hover{color:var(--text);background:var(--surface-2);}
+.admin-nav-item.active{color:var(--accent);background:var(--accent-soft);}
+.admin-sidebar .as-foot{margin-top:auto;display:flex;flex-direction:column;gap:8px;}
+
+.admin-main{flex:1;padding:38px 44px;max-width:920px;}
+.admin-panel-head{margin-bottom:30px;}
+.admin-panel-head h2{font-size:26px;}
+.admin-panel-head p{color:var(--text-muted);font-size:13.5px;margin-top:6px;}
+.admin-block{padding:26px;margin-bottom:20px;}
+.admin-block h3{font-size:15px;margin-bottom:18px;display:flex;align-items:center;gap:8px;}
+.admin-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media (max-width:640px){.admin-grid-2{grid-template-columns:1fr;}}
+.admin-field{margin-bottom:16px;}
+.admin-field label{display:block;font-family:var(--f-mono);font-size:11px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;}
+.admin-field input[type=text],.admin-field input[type=number],.admin-field input[type=url],.admin-field input[type=email],.admin-field textarea,.admin-field select{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:11px 13px;font-size:13.5px;
+}
+.admin-field textarea{resize:vertical;min-height:80px;}
+.admin-field input:focus,.admin-field textarea:focus,.admin-field select:focus{border-color:var(--accent);outline:none;}
+.admin-field .hint{font-size:11.5px;color:var(--text-faint);margin-top:6px;}
+.admin-toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border);}
+.admin-toggle-row:last-child{border-bottom:none;}
+.admin-toggle-row .att-label{font-size:13.5px;}
+.admin-toggle-row .att-sub{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
+.switch{position:relative;width:42px;height:24px;border-radius:20px;background:var(--surface-3);flex-shrink:0;transition:background .25s;}
+.switch::after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:translate .25s var(--ease);}
+.switch.on{background:var(--accent);}
+.switch.on::after{translate:18px 0;}
+
+.color-swatches{display:flex;gap:10px;flex-wrap:wrap;}
+.swatch{width:36px;height:36px;border-radius:9px;border:2px solid transparent;position:relative;}
+.swatch.selected{border-color:#fff;}
+.swatch.selected::after{content:'\f00c';font-family:'Font Awesome 6 Free';font-weight:900;font-size:11px;color:#fff;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-shadow:0 1px 3px rgba(0,0,0,.5);}
+
+.upload-box{
+  border:1px dashed var(--border-strong);border-radius:12px;padding:18px;display:flex;align-items:center;gap:16px;
+}
+.upload-preview{width:60px;height:60px;border-radius:10px;background:var(--surface-2);object-fit:cover;flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--text-faint);}
+.upload-preview img{width:100%;height:100%;object-fit:cover;}
+
+.admin-list-item{display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--border);border-radius:12px;margin-bottom:10px;}
+.admin-list-item .ali-thumb{width:46px;height:46px;border-radius:8px;background:var(--surface-2);flex-shrink:0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--text-faint);}
+.admin-list-item .ali-thumb img{width:100%;height:100%;object-fit:cover;}
+.admin-list-item .ali-main{flex:1;min-width:0;}
+.admin-list-item .ali-title{font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-list-item .ali-sub{font-size:11.5px;color:var(--text-faint);font-family:var(--f-mono);margin-top:2px;}
+.admin-list-item .ali-actions{display:flex;gap:6px;flex-shrink:0;}
+.icon-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text-muted);}
+.icon-btn:hover{border-color:var(--accent);color:var(--accent);}
+.icon-btn.danger:hover{border-color:var(--danger);color:var(--danger);}
+
+.admin-form-panel{padding:22px;margin-top:16px;border:1px solid var(--border-strong);border-radius:12px;background:var(--surface-2);}
+.admin-actions-row{display:flex;gap:10px;margin-top:8px;flex-wrap:wrap;}
+.tag-input-note{font-size:11px;color:var(--text-faint);margin-top:5px;}
+
+.data-actions{display:flex;gap:12px;flex-wrap:wrap;}
+.security-note{
+  display:flex;gap:12px;padding:16px;border:1px solid rgba(255,180,84,.3);background:rgba(255,180,84,.06);
+  border-radius:12px;font-size:12.5px;color:#ffd8a0;line-height:1.6;
+}
+.security-note i{color:var(--dev);flex-shrink:0;margin-top:2px;}
+
+@media (max-width:780px){
+  .admin-shell{flex-direction:column;}
+  .admin-sidebar{width:100%;height:auto;position:relative;flex-direction:row;overflow-x:auto;padding:14px 12px;gap:6px;border-right:none;border-bottom:1px solid var(--border);}
+  .admin-sidebar .as-brand,.admin-sidebar .as-foot{display:none;}
+  .admin-nav-item{white-space:nowrap;}
+  .admin-main{padding:26px 20px;}
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width:640px){
+  .hero{padding:40px 0 60px;}
+  .section{padding:72px 0;}
+  .venture-card{padding:26px 22px;}
+  .contact-pane{padding:26px;}
+  .project-body{padding:22px;}
+  .footer-top{flex-direction:column;}
+}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-word" id="loader-word">ItzYUG</div>
+  <div class="loader-bar-track"><div class="loader-bar-fill" id="loader-bar"></div></div>
+  <div class="loader-mark"><span class="dot"></span><span id="loader-pct">Booting systems — 0%</span></div>
+</div>
+
+<!-- CURSOR -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- BACKGROUND -->
+<canvas id="webgl-bg"></canvas>
+<div class="bg-glow"></div>
+<div class="bg-grid"></div>
+<div class="noise"></div>
+<div id="scroll-progress"></div>
+
+<!-- NAV -->
+<header id="site-nav">
+  <div class="container nav-inner">
+    <a href="#about" class="nav-logo" data-route-link="about">
+      <span class="logo-glyph" id="nav-logo-glyph">Y</span>
+      <span id="nav-site-name">ItzYUG</span>
+    </a>
+    <nav class="nav-links" id="nav-links">
+      <a href="#about" data-route-link="about">~/about</a>
+      <a href="#services" data-route-link="services">~/services</a>
+      <a href="#projects" data-route-link="projects">~/projects</a>
+      <a href="#products" data-route-link="products">~/products</a>
+      <a href="#contact" data-route-link="contact">~/contact</a>
+    </nav>
+    <div class="nav-right">
+      <button class="kbd-hint" id="cmdk-trigger" type="button"><i class="fa-solid fa-magnifying-glass"></i>&nbsp;⌘K</button>
+      <div class="nav-status"><span class="pulse"></span><span id="nav-status-text">3 systems online</span></div>
+      <button class="hamburger" id="hamburger-btn" aria-label="Open menu" type="button">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE MENU -->
+<div id="mobile-menu">
+  <div class="mm-bg"></div>
+  <div class="mm-blob b1"></div>
+  <div class="mm-blob b2"></div>
+  <div class="mm-top">
+    <div class="nav-logo"><span class="logo-glyph">Y</span><span id="mm-site-name">ItzYUG</span></div>
+    <button class="mm-close" id="mm-close-btn" aria-label="Close menu" type="button"><i class="fa-solid fa-xmark"></i></button>
+  </div>
+  <nav class="mm-links" id="mm-links"></nav>
+  <div class="mm-foot" id="mm-foot"></div>
+</div>
+
+<!-- COMMAND PALETTE -->
+<div id="cmdk">
+  <div class="cmdk-bg" id="cmdk-bg"></div>
+  <div class="cmdk-panel">
+    <div class="cmdk-input-row">
+      <i class="fa-solid fa-terminal"></i>
+      <input type="text" id="cmdk-input" placeholder="Type a command or search…" autocomplete="off">
+      <span class="kbd-hint" style="padding:3px 7px;font-size:10px;">esc</span>
+    </div>
+    <div class="cmdk-list" id="cmdk-list"></div>
+  </div>
+</div>
+
+<!-- APP (ROUTER TARGET) -->
+<main id="app"></main>
+
+<!-- FOOTER -->
+<footer id="site-footer">
+  <div class="container">
+    <div class="footer-top">
+      <div>
+        <div class="nav-logo" style="margin-bottom:14px;"><span class="logo-glyph">Y</span><span id="footer-site-name">ItzYUG</span></div>
+        <p style="color:var(--text-muted);font-size:13.5px;max-width:32ch;line-height:1.6;">Founder, full stack &amp; AI developer, cloud infrastructure engineer.</p>
+      </div>
+      <div class="footer-links">
+        <a href="#about" data-route-link="about">About</a>
+        <a href="#services" data-route-link="services">Services</a>
+        <a href="#projects" data-route-link="projects">Projects</a>
+        <a href="#products" data-route-link="products">Products</a>
+        <a href="#contact" data-route-link="contact">Contact</a>
+      </div>
+      <div class="footer-socials" id="footer-socials"></div>
+    </div>
+    <div class="footer-bottom">
+      <span id="footer-copy">© 2026 ItzYUG. All systems operational.</span>
+      <span id="footer-build">build ~/craze-dev — status: <span style="color:var(--live);">live</span></span>
+    </div>
+  </div>
+</footer>
+
+<!-- ADMIN ROOT -->
+<div id="admin-root"></div>
+
+<!-- TOAST -->
+<div id="toast"><i class="fa-solid fa-circle-check"></i><span id="toast-msg">Saved</span></div>
+
+<script>
+/* ========================================================================
+   ITZYUG PORTFOLIO — APPLICATION SCRIPT
+   Sections: 1. Data & state  2. Utils  3. Three.js bg  4. Cursor/Loader/Nav
+   5. Mobile menu  6. Command palette  7. Router + page renderers
+   8. Products filter  9. Contact form  10. Admin (auth/dashboard/CRUD)
+   11. Bootstrap
+   ======================================================================== */
+
+/* ------------------------- 1. DATA & STATE ------------------------- */
+const STORAGE_KEY = 'itzyug_site_data_v1';
+const ADMIN_AUTH_KEY = 'itzyug_admin_auth_v1';
+
+const SITE_DEFAULTS = {
+  siteName: "ItzYUG",
+  logoGlyph: "Y",
+  logoImage: "",
+  security: { adminPassword: "changeme123" },
+  theme: { accent: "#4fd1ff", accent2: "#7c8cff" },
+  profile: {
+    name: "ItzYUG",
+    title: "Founder • Full Stack Developer • AI Developer • Cloud Infrastructure Engineer",
+    photo: "",
+    bio: "Hi, I'm Yug.\n\nI'm the Founder of CrazeDev Studio, an agency that provides professional developers for websites, AI solutions, Discord bots, VPS and panel setup, Minecraft servers, and custom texture packs.\n\nI'm also the Co-founder of Hexium Nodes, a premium hosting provider in India offering reliable Game Hosting, VPS, Web Hosting, and Bot Hosting.\n\nI'm also the Co-owner of StoneNodes, another premium and accessible hosting solution in India.",
+    stats: [
+      { label: "Ventures founded", value: "3" },
+      { label: "Years building", value: "5+" },
+      { label: "Servers under management", value: "100+" },
+      { label: "Response time", value: "<24h" }
+    ]
+  },
+  services: [
+    { id: "svc-1", name: "CrazeDev Studio", status: "live", role: "Founder", description: "Premium software agency providing websites, AI, bots, VPS setup, Minecraft development and digital solutions." },
+    { id: "svc-2", name: "Hexium Nodes", status: "dev", role: "Co-founder", description: "Premium hosting provider delivering game servers, VPS, web hosting and bot hosting." },
+    { id: "svc-3", name: "StoneNodes", status: "live", role: "Co-owner", description: "Affordable premium hosting platform for developers and gamers." }
+  ],
+  projects: [
+    {
+      id: "prj-1",
+      title: "StoneNodes Website",
+      banner: "",
+      description: "The production website for StoneNodes, an India-first Minecraft hosting brand. Built as a single, self-contained page with real INR pricing tiers and Mumbai / Pune datacenter options, replacing placeholder brand content with the studio's actual identity.",
+      technologies: ["HTML5", "CSS3", "Vanilla JS", "Responsive Design"],
+      features: ["INR-first pricing tiers", "Mumbai & Pune datacenter selection", "Fully responsive, single-file build", "Optimized for fast static hosting"],
+      status: "live",
+      gallery: [],
+      links: { live: "https://stonenodes.xyz", repo: "" }
+    },
+    {
+      id: "prj-2",
+      title: "ZeroX Bot",
+      banner: "",
+      description: "A utility and moderation Discord bot built for game-hosting and Minecraft community servers, handling automated moderation, ticketing and server-status announcements so community teams can focus on players instead of busywork.",
+      technologies: ["Node.js", "Discord.js", "MongoDB"],
+      features: ["Automated moderation & logging", "Ticket support system", "Live server status announcements", "Custom command framework"],
+      status: "dev",
+      gallery: [],
+      links: { live: "", repo: "" }
+    }
+  ],
+  products: [],
+  contact: {
+    email: "yugrahangdale157@gmail.com",
+    discord: "yugofficial02",
+    socials: [
+      { platform: "github", url: "https://github.com" },
+      { platform: "discord", url: "https://discord.com" },
+      { platform: "twitter", url: "https://twitter.com" }
+    ]
+  }
+};
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return structuredClone(SITE_DEFAULTS);
+    const parsed = JSON.parse(raw);
+    // shallow-merge top level, keep nested objects from saved data when present
+    return Object.assign(structuredClone(SITE_DEFAULTS), parsed);
+  }catch(e){
+    console.warn('[itzyug] Could not read saved site data, using defaults.', e);
+    return structuredClone(SITE_DEFAULTS);
+  }
+}
+
+let state = loadState();
+let storageAvailable = true;
+(function testStorage(){
+  try{
+    const k='__itzyug_test__'; localStorage.setItem(k,'1'); localStorage.removeItem(k);
+  }catch(e){ storageAvailable = false; }
+})();
+
+function saveState(){
+  try{
+    if(storageAvailable) localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }catch(e){
+    console.warn('[itzyug] Save failed (storage unavailable in this preview environment).', e);
+  }
+  applyTheme();
+  renderChrome();
+}
+
+/* ------------------------------ 2. UTILS ------------------------------ */
+const qs = (sel, ctx=document) => ctx.querySelector(sel);
+const qsa = (sel, ctx=document) => Array.from(ctx.querySelectorAll(sel));
+const uid = (p='id') => p + '-' + Math.random().toString(36).slice(2,9);
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function escapeHtml(str=''){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function nl2br(str=''){ return escapeHtml(str).replace(/\n/g,'<br>'); }
+
+let toastTimer;
+function toast(msg, icon='fa-circle-check'){
+  const el = qs('#toast');
+  qs('#toast-msg').textContent = msg;
+  qs('#toast i').className = 'fa-solid ' + icon;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> el.classList.remove('show'), 2600);
+}
+
+function copyText(text, label){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=> toast(label + ' copied to clipboard')).catch(()=> fallbackCopy(text,label));
+  } else fallbackCopy(text,label);
+}
+function fallbackCopy(text,label){
+  const ta = document.createElement('textarea');
+  ta.value = text; document.body.appendChild(ta); ta.select();
+  try{ document.execCommand('copy'); toast(label+' copied to clipboard'); }catch(e){ toast('Could not copy','fa-circle-exclamation'); }
+  ta.remove();
+}
+
+function fileToDataUrl(file){
+  return new Promise((resolve,reject)=>{
+    const r = new FileReader();
+    r.onload = () => resolve(r.result);
+    r.onerror = reject;
+    r.readAsDataURL(file);
+  });
+}
+
+function applyTheme(){
+  document.documentElement.style.setProperty('--accent', state.theme.accent);
+  document.documentElement.style.setProperty('--accent-2', state.theme.accent2);
+  document.documentElement.style.setProperty('--grad-accent', `linear-gradient(135deg, ${state.theme.accent} 0%, ${state.theme.accent2} 100%)`);
+  document.documentElement.style.setProperty('--accent-soft', hexToRgba(state.theme.accent, 0.12));
+}
+function hexToRgba(hex, a){
+  const h = hex.replace('#','');
+  const r = parseInt(h.substring(0,2),16), g = parseInt(h.substring(2,4),16), b = parseInt(h.substring(4,6),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/* ------------------------- 3. THREE.JS BACKGROUND -------------------------
+   Signature element: a live "infrastructure map" — glowing nodes connected
+   by edges, with pulses traveling along connections like data packets.
+   Grounded in the subject: this is what a hosting/infra founder's site
+   should look like at rest. */
+let three = { renderer:null, scene:null, camera:null, nodes:[], edges:[], pulses:[], raf:null };
+
+function initThreeBackground(){
+  const canvas = qs('#webgl-bg');
+  if(!canvas || typeof THREE === 'undefined') return;
+
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(55, window.innerWidth/window.innerHeight, 0.1, 100);
+  camera.position.set(0, 0, 13);
+
+  const NODE_COUNT = window.innerWidth < 760 ? 14 : 26;
+  const spread = window.innerWidth < 760 ? 7 : 11;
+  const nodePositions = [];
+  for(let i=0;i<NODE_COUNT;i++){
+    nodePositions.push(new THREE.Vector3(
+      (Math.random()-0.5)*spread*2,
+      (Math.random()-0.5)*spread*1.1,
+      (Math.random()-0.5)*4 - 1
+    ));
+  }
+
+  // node points
+  const nodeGeo = new THREE.BufferGeometry().setFromPoints(nodePositions);
+  const nodeMat = new THREE.PointsMaterial({
+    color: 0x4fd1ff, size: 0.11, transparent:true, opacity:0.9, sizeAttenuation:true
+  });
+  const nodePoints = new THREE.Points(nodeGeo, nodeMat);
+  scene.add(nodePoints);
+
+  // edges: connect each node to its 1-2 nearest neighbours
+  const edgePairs = [];
+  nodePositions.forEach((p, i) => {
+    const distances = nodePositions.map((q,j)=> ({j, d: i===j ? Infinity : p.distanceTo(q)}));
+    distances.sort((a,b)=>a.d-b.d);
+    const linkCount = 1 + Math.floor(Math.random()*2);
+    for(let k=0;k<linkCount;k++){
+      const pair = [i, distances[k].j].sort();
+      const key = pair.join('-');
+      if(!edgePairs.find(e=>e.key===key)) edgePairs.push({key, a:pair[0], b:pair[1]});
+    }
+  });
+
+  const edgeGeo = new THREE.BufferGeometry();
+  const edgePositions = [];
+  edgePairs.forEach(e=>{
+    const a = nodePositions[e.a], b = nodePositions[e.b];
+    edgePositions.push(a.x,a.y,a.z, b.x,b.y,b.z);
+  });
+  edgeGeo.setAttribute('position', new THREE.Float32BufferAttribute(edgePositions, 3));
+  const edgeMat = new THREE.LineBasicMaterial({ color: 0x2c3a52, transparent:true, opacity:0.55 });
+  const edgeLines = new THREE.LineSegments(edgeGeo, edgeMat);
+  scene.add(edgeLines);
+
+  // traveling "packet" pulses along a subset of edges
+  const pulseCount = Math.min(8, edgePairs.length);
+  const pulseGeo = new THREE.SphereGeometry(0.045, 8, 8);
+  const pulseMat = new THREE.MeshBasicMaterial({ color: 0x7c8cff });
+  const pulses = [];
+  for(let i=0;i<pulseCount;i++){
+    const edge = edgePairs[Math.floor(Math.random()*edgePairs.length)];
+    const mesh = new THREE.Mesh(pulseGeo, pulseMat.clone());
+    scene.add(mesh);
+    pulses.push({ mesh, a: nodePositions[edge.a], b: nodePositions[edge.b], t: Math.random(), speed: 0.15 + Math.random()*0.25 });
+  }
+
+  // faint ambient dust particles
+  const dustCount = window.innerWidth < 760 ? 80 : 160;
+  const dustGeo = new THREE.BufferGeometry();
+  const dustPos = new Float32Array(dustCount*3);
+  for(let i=0;i<dustCount;i++){
+    dustPos[i*3] = (Math.random()-0.5)*30;
+    dustPos[i*3+1] = (Math.random()-0.5)*20;
+    dustPos[i*3+2] = (Math.random()-0.5)*10 - 4;
+  }
+  dustGeo.setAttribute('position', new THREE.BufferAttribute(dustPos,3));
+  const dustMat = new THREE.PointsMaterial({ color:0x39445c, size:0.025, transparent:true, opacity:0.5 });
+  const dust = new THREE.Points(dustGeo, dustMat);
+  scene.add(dust);
+
+  three = { renderer, scene, camera, nodePoints, edgeLines, pulses, dust, raf:null };
+
+  let mouseX = 0, mouseY = 0, targetRotX = 0, targetRotY = 0;
+  window.addEventListener('mousemove', (e)=>{
+    mouseX = (e.clientX / window.innerWidth - 0.5);
+    mouseY = (e.clientY / window.innerHeight - 0.5);
+  }, { passive:true });
+
+  const clock = new THREE.Clock();
+  function animate(){
+    three.raf = requestAnimationFrame(animate);
+    const dt = Math.min(clock.getDelta(), 0.05);
+    const t = clock.getElapsedTime();
+
+    targetRotY += (mouseX*0.35 - targetRotY) * 0.03;
+    targetRotX += (-mouseY*0.2 - targetRotX) * 0.03;
+    scene.rotation.y = targetRotY;
+    scene.rotation.x = targetRotX;
+    scene.rotation.z = Math.sin(t*0.05)*0.02;
+
+    nodeMat.size = 0.11 + Math.sin(t*1.4)*0.015;
+
+    pulses.forEach(p=>{
+      p.t += dt * p.speed * 0.5;
+      if(p.t > 1){ p.t = 0; }
+      p.mesh.position.lerpVectors(p.a, p.b, p.t);
+      const pulse = Math.sin(p.t*Math.PI);
+      p.mesh.material.opacity = 0.3 + pulse*0.7;
+      p.mesh.scale.setScalar(0.6 + pulse*0.8);
+    });
+
+    dust.rotation.y = t*0.01;
+
+    renderer.render(scene, camera);
+  }
+  if(!prefersReducedMotion){ animate(); }
+  else { renderer.render(scene, camera); }
+
+  window.addEventListener('resize', debounceResize);
+}
+let resizeTimer;
+function debounceResize(){
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(()=>{
+    if(!three.renderer) return;
+    three.renderer.setSize(window.innerWidth, window.innerHeight);
+    three.camera.aspect = window.innerWidth/window.innerHeight;
+    three.camera.updateProjectionMatrix();
+  }, 150);
+}
+
+/* --------------------- 4. CURSOR / LOADER / NAV / LENIS --------------------- */
+let lenis;
+function initLenis(){
+  if(prefersReducedMotion || typeof Lenis === 'undefined') return;
+  lenis = new Lenis({ duration: 1.1, smoothWheel: true });
+  if(window.gsap){
+    // Drive Lenis from GSAP's ticker so it stays in lockstep with GSAP/ScrollTrigger.
+    // (Not also running a separate requestAnimationFrame loop for lenis.raf here —
+    // driving it from two loops at once would double-update scroll physics per frame.)
+    gsap.ticker.add((time)=> lenis.raf(time*1000));
+    gsap.ticker.lazySmoothing = false;
+    if(window.ScrollTrigger) lenis.on('scroll', ScrollTrigger.update);
+  } else {
+    const raf = (time)=>{ lenis.raf(time); requestAnimationFrame(raf); };
+    requestAnimationFrame(raf);
+  }
+}
+function scrollToTop(){
+  if(lenis) lenis.scrollTo(0, { immediate:true });
+  else window.scrollTo(0,0);
+}
+
+function initCursor(){
+  if(window.matchMedia('(hover:none)').matches) return;
+  const dot = qs('#cursor-dot'), ring = qs('#cursor-ring');
+  let mx=innerWidth/2,my=innerHeight/2, rx=mx, ry=my;
+  window.addEventListener('mousemove', e=>{ mx=e.clientX; my=e.clientY; dot.style.left=mx+'px'; dot.style.top=my+'px'; });
+  window.addEventListener('mousedown', ()=> ring.classList.add('is-down'));
+  window.addEventListener('mouseup', ()=> ring.classList.remove('is-down'));
+  (function loop(){
+    rx += (mx-rx)*0.18; ry += (my-ry)*0.18;
+    ring.style.left = rx+'px'; ring.style.top = ry+'px';
+    requestAnimationFrame(loop);
+  })();
+  document.addEventListener('mouseover', e=>{
+    if(e.target.closest('a, button, .card, input, textarea, .swatch, .switch')) ring.classList.add('is-hover');
+  });
+  document.addEventListener('mouseout', e=>{
+    if(e.target.closest('a, button, .card, input, textarea, .swatch, .switch')) ring.classList.remove('is-hover');
+  });
+}
+
+function initMagnetic(){
+  qsa('.magnetic').forEach(btn=>{
+    if(btn._magneticBound) return;
+    btn._magneticBound = true;
+    btn.addEventListener('mousemove', e=>{
+      const r = btn.getBoundingClientRect();
+      const x = e.clientX - r.left - r.width/2, y = e.clientY - r.top - r.height/2;
+      gsap.to(btn, { x: x*0.28, y: y*0.4, duration:0.4, ease:'power3.out' });
+    });
+    btn.addEventListener('mouseleave', ()=> gsap.to(btn, { x:0, y:0, duration:0.5, ease:'elastic.out(1,0.4)' }));
+  });
+}
+
+function initCardGlow(){
+  qsa('.card').forEach(card=>{
+    if(card._glowBound) return;
+    card._glowBound = true;
+    card.addEventListener('mousemove', e=>{
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX-r.left)+'px');
+      card.style.setProperty('--my', (e.clientY-r.top)+'px');
+    });
+  });
+}
+
+function runLoader(){
+  const bar = qs('#loader-bar'), pct = qs('#loader-pct'), loader = qs('#loader');
+  let progress = 0;
+  const iv = setInterval(()=>{
+    progress += Math.random()*18 + 6;
+    if(progress >= 100){ progress = 100; clearInterval(iv); }
+    if(bar) bar.style.inset = `0 ${100-progress}% 0 0`;
+    if(pct) pct.textContent = `Booting systems — ${Math.floor(progress)}%`;
+    if(progress >= 100){
+      setTimeout(()=>{
+        if(window.gsap){
+          gsap.to(loader, { opacity:0, duration:0.6, ease:'power2.out', onComplete: ()=> { loader.style.display='none'; onAppReady(); } });
+        } else { loader.style.display='none'; onAppReady(); }
+      }, 220);
+    }
+  }, 130);
+}
+
+function initNavScrollState(){
+  const nav = qs('#site-nav');
+  function update(){ nav.classList.toggle('scrolled', window.scrollY > 30); }
+  window.addEventListener('scroll', update, { passive:true });
+  update();
+}
+
+function initScrollProgress(){
+  const bar = qs('#scroll-progress');
+  function update(){
+    const h = document.documentElement;
+    const scrolled = h.scrollTop || document.body.scrollTop;
+    const height = h.scrollHeight - h.clientHeight;
+    bar.style.width = height > 0 ? (scrolled/height*100)+'%' : '0%';
+  }
+  window.addEventListener('scroll', update, { passive:true });
+  update();
+}
+
+/* ------------------------------ 5. MOBILE MENU ------------------------------ */
+const NAV_ROUTES = [
+  { key:'about', label:'About', icon:'fa-user-astronaut' },
+  { key:'services', label:'Services', icon:'fa-server' },
+  { key:'projects', label:'Projects', icon:'fa-diagram-project' },
+  { key:'products', label:'Products', icon:'fa-box-open' },
+  { key:'contact', label:'Contact', icon:'fa-paper-plane' }
+];
+
+function buildMobileMenu(){
+  const links = qs('#mm-links');
+  links.innerHTML = NAV_ROUTES.map((r,i)=>`
+    <a class="mm-link" href="#${r.key}" data-route-link="${r.key}">
+      <span class="mm-num">0${i+1}</span>
+      <span class="mm-label">${r.label}</span>
+    </a>`).join('');
+  const foot = qs('#mm-foot');
+  const socials = (state.contact.socials||[]).slice(0,4);
+  foot.innerHTML = socials.map(s=>`<a href="${escapeHtml(s.url)}" target="_blank" rel="noopener"><i class="fa-brands fa-${escapeHtml(s.platform)}"></i></a>`).join('')
+    + `<a href="mailto:${escapeHtml(state.contact.email)}"><i class="fa-solid fa-envelope"></i></a>`;
+}
+
+function openMobileMenu(){
+  document.body.classList.add('menu-open');
+  const menu = qs('#mobile-menu');
+  menu.style.visibility = 'visible';
+  const items = qsa('.mm-link');
+  gsap.set(menu, { clipPath:'circle(0% at calc(100% - 40px) 40px)' });
+  gsap.to(menu, { clipPath:'circle(150% at calc(100% - 40px) 40px)', duration:0.7, ease:'power4.inOut' });
+  gsap.to(items, { opacity:1, y:0, duration:0.6, stagger:0.06, delay:0.25, ease:'power3.out' });
+  qs('.hamburger span:nth-child(1)').style.transform='translateY(6.5px) rotate(45deg)';
+  qs('.hamburger span:nth-child(2)').style.opacity='0';
+  qs('.hamburger span:nth-child(3)').style.transform='translateY(-6.5px) rotate(-45deg)';
+}
+function closeMobileMenu(){
+  const menu = qs('#mobile-menu');
+  gsap.to(menu, { clipPath:'circle(0% at calc(100% - 40px) 40px)', duration:0.55, ease:'power3.inOut', onComplete:()=>{
+    menu.style.visibility='hidden';
+    document.body.classList.remove('menu-open');
+    gsap.set(qsa('.mm-link'), { opacity:0, y:24 });
+  }});
+  qs('.hamburger span:nth-child(1)').style.transform='';
+  qs('.hamburger span:nth-child(2)').style.opacity='1';
+  qs('.hamburger span:nth-child(3)').style.transform='';
+}
+function initMobileMenu(){
+  buildMobileMenu();
+  qs('#hamburger-btn').addEventListener('click', openMobileMenu);
+  qs('#mm-close-btn').addEventListener('click', closeMobileMenu);
+  qsa('#mm-links a').forEach(a=> a.addEventListener('click', closeMobileMenu));
+}
+
+/* ------------------------------ 6. COMMAND PALETTE ------------------------------ */
+let cmdkActiveIndex = 0;
+let cmdkItems = [];
+
+function getCmdkItems(){
+  const navItems = NAV_ROUTES.map(r => ({ type:'nav', icon:r.icon, label:'Go to '+r.label, tag:r.key, action: ()=> navigateTo(r.key) }));
+  const actions = [
+    { type:'action', icon:'fa-envelope', label:'Copy email address', tag:'contact', action: ()=> copyText(state.contact.email,'Email') },
+    { type:'action', icon:'fa-brands fa-discord', label:'Copy Discord username', tag:'contact', action: ()=> copyText(state.contact.discord,'Discord') },
+    { type:'action', icon:'fa-arrow-up', label:'Scroll to top', tag:'nav', action: ()=> scrollToTop() }
+  ];
+  return [...navItems, ...actions];
+}
+
+function renderCmdkList(filter=''){
+  const list = qs('#cmdk-list');
+  const f = filter.trim().toLowerCase();
+  cmdkItems = getCmdkItems().filter(i => i.label.toLowerCase().includes(f));
+  cmdkActiveIndex = 0;
+  if(cmdkItems.length === 0){
+    list.innerHTML = `<div style="padding:24px;text-align:center;color:var(--text-faint);font-size:13px;">No matches</div>`;
+    return;
+  }
+  list.innerHTML = cmdkItems.map((item,i)=>`
+    <div class="cmdk-item ${i===0?'active':''}" data-idx="${i}">
+      <i class="fa-solid ${item.icon.includes('fa-') && item.icon.startsWith('fa-brands') ? '' : ''} ${item.icon}"></i>
+      <span>${escapeHtml(item.label)}</span>
+      <span class="tag">${escapeHtml(item.tag)}</span>
+    </div>`).join('');
+  qsa('.cmdk-item', list).forEach(el=>{
+    el.addEventListener('click', ()=> { runCmdkItem(parseInt(el.dataset.idx)); });
+    el.addEventListener('mousemove', ()=> setCmdkActive(parseInt(el.dataset.idx)));
+  });
+}
+function setCmdkActive(idx){
+  cmdkActiveIndex = idx;
+  qsa('.cmdk-item').forEach((el,i)=> el.classList.toggle('active', i===idx));
+}
+function runCmdkItem(idx){
+  const item = cmdkItems[idx];
+  if(item){ item.action(); closeCmdk(); }
+}
+function openCmdk(){
+  qs('#cmdk').classList.add('open');
+  qs('#cmdk-input').value = '';
+  renderCmdkList('');
+  setTimeout(()=> qs('#cmdk-input').focus(), 60);
+}
+function closeCmdk(){ qs('#cmdk').classList.remove('open'); }
+
+function initCmdk(){
+  qs('#cmdk-trigger').addEventListener('click', openCmdk);
+  qs('#cmdk-bg').addEventListener('click', closeCmdk);
+  qs('#cmdk-input').addEventListener('input', e=> renderCmdkList(e.target.value));
+  window.addEventListener('keydown', e=>{
+    if((e.metaKey || e.ctrlKey) && e.key.toLowerCase()==='k'){ e.preventDefault(); qs('#cmdk').classList.contains('open') ? closeCmdk() : openCmdk(); }
+    if(!qs('#cmdk').classList.contains('open')) return;
+    if(e.key==='Escape') closeCmdk();
+    if(e.key==='ArrowDown'){ e.preventDefault(); setCmdkActive(Math.min(cmdkActiveIndex+1, cmdkItems.length-1)); }
+    if(e.key==='ArrowUp'){ e.preventDefault(); setCmdkActive(Math.max(cmdkActiveIndex-1, 0)); }
+    if(e.key==='Enter'){ e.preventDefault(); runCmdkItem(cmdkActiveIndex); }
+  });
+}
+
+/* ------------------------------ 7. ROUTER ------------------------------ */
+const VALID_ROUTES = ['about','services','projects','products','contact'];
+
+function currentRoute(){
+  const h = location.hash.replace('#','').split('?')[0];
+  if(h === 'admin') return 'admin';
+  return VALID_ROUTES.includes(h) ? h : 'about';
+}
+
+function navigateTo(route){ location.hash = '#' + route; }
+
+function renderChrome(){
+  qsa('#nav-site-name, #mm-site-name, #footer-site-name').forEach(el => el.textContent = state.siteName);
+  const glyph = state.siteName ? state.siteName.trim().charAt(0).toUpperCase() : 'Y';
+  const logoEls = qsa('#nav-logo-glyph');
+  logoEls.forEach(el=>{
+    if(state.logoImage){ el.innerHTML = `<img src="${state.logoImage}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`; }
+    else { el.textContent = glyph; }
+  });
+  const live = state.services.filter(s=>s.status==='live').length;
+  qs('#nav-status-text').textContent = `${live}/${state.services.length} systems online`;
+  qs('#footer-copy').textContent = `© ${new Date().getFullYear()} ${state.siteName}. All systems operational.`;
+  const iconMap = { github:'fa-github', discord:'fa-discord', twitter:'fa-x-twitter', x:'fa-x-twitter', instagram:'fa-instagram', youtube:'fa-youtube', linkedin:'fa-linkedin' };
+  qs('#footer-socials').innerHTML = (state.contact.socials||[]).map(s=>`
+    <a href="${escapeHtml(s.url)}" target="_blank" rel="noopener" aria-label="${escapeHtml(s.platform)}">
+      <i class="fa-brands ${iconMap[s.platform.toLowerCase()] || 'fa-link'}"></i>
+    </a>`).join('');
+  buildMobileMenu();
+}
+
+function setActiveNav(route){
+  qsa('[data-route-link]').forEach(a => a.classList.toggle('active', a.dataset.routeLink === route));
+}
+
+const PAGE_META = {
+  about:   { title:'ItzYUG — About', desc:'Founder of CrazeDev Studio, Co-founder of Hexium Nodes, Co-owner of StoneNodes.' },
+  services:{ title:'ItzYUG — Services', desc:'The ventures I build and operate.' },
+  projects:{ title:'ItzYUG — Projects', desc:'Selected engineering work.' },
+  products:{ title:'ItzYUG — Products', desc:'Digital products and resources.' },
+  contact: { title:'ItzYUG — Contact', desc:'Get in touch.' }
+};
+
+function router(){
+  const route = currentRoute();
+  closeCmdk();
+  if(qs('body').classList.contains('menu-open')) closeMobileMenu();
+
+  if(route === 'admin'){
+    qs('#app').style.display = 'none';
+    qs('#site-nav').style.display = 'none';
+    qs('#site-footer').style.display = 'none';
+    renderAdmin();
+    return;
+  }
+  qs('#app').style.display = '';
+  qs('#site-nav').style.display = '';
+  qs('#site-footer').style.display = '';
+  qs('#admin-root').classList.remove('open');
+
+  const renderers = { about: renderAbout, services: renderServices, projects: renderProjects, products: renderProducts, contact: renderContact };
+  qs('#app').innerHTML = renderers[route]();
+  setActiveNav(route);
+  const meta = PAGE_META[route];
+  if(meta){ document.title = meta.title; setMetaDesc(meta.desc); }
+  scrollToTop();
+  requestAnimationFrame(()=>{
+    initPageAnimations();
+    initMagnetic();
+    initCardGlow();
+    bindPageInteractions(route);
+  });
+}
+function setMetaDesc(desc){
+  let m = qs('meta[name="description"]');
+  if(m) m.setAttribute('content', desc);
+}
+
+function initPageAnimations(){
+  if(window.ScrollTrigger){
+    ScrollTrigger.getAll().forEach(t=>{ if(t.vars.id !== 'persist') t.kill(); });
+  }
+  const reveals = qsa('.reveal');
+  if(!window.gsap){ reveals.forEach(el=> el.style.opacity=1); return; }
+  reveals.forEach((el,i)=>{
+    gsap.set(el,{ opacity:0, y:34 });
+    if(el.classList.contains('hero-el')){
+      gsap.to(el, { opacity:1, y:0, duration:0.9, ease:'power3.out', delay: 0.08*i });
+    } else {
+      gsap.to(el, {
+        opacity:1, y:0, duration:0.8, ease:'power3.out',
+        scrollTrigger: { trigger: el, start:'top 88%' }
+      });
+    }
+  });
+  ScrollTrigger.refresh();
+}
+
+/* --------------------------- PAGE: ABOUT --------------------------- */
+function renderAbout(){
+  const p = state.profile;
+  const photoHtml = p.photo
+    ? `<img src="${p.photo}" alt="${escapeHtml(p.name)}" style="width:100%;height:100%;object-fit:cover;">`
+    : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--f-display);font-size:64px;color:var(--text-faint);">${escapeHtml((p.name||'Y').charAt(0))}</div>`;
+  return `
+  <div class="page">
+    <section class="hero container">
+      <div style="display:grid;grid-template-columns:1.3fr 0.7fr;gap:60px;align-items:center;">
+        <div>
+          <div class="eyebrow hero-el reveal">System status: online</div>
+          <h1 class="hero-title hero-el reveal">Hi, I'm <span class="accent-text">${escapeHtml(p.name)}</span>.</h1>
+          <p class="hero-sub hero-el reveal" style="max-width:60ch;">${nl2br(p.title)}</p>
+          <div class="hero-actions hero-el reveal">
+            <a href="#contact" class="btn btn-primary magnetic" data-route-link="contact"><i class="fa-solid fa-paper-plane"></i> Get in touch</a>
+            <a href="#projects" class="btn btn-ghost magnetic" data-route-link="projects"><i class="fa-solid fa-diagram-project"></i> View work</a>
+          </div>
+        </div>
+        <div class="hero-el reveal glass" style="aspect-ratio:1;border-radius:var(--radius-l);overflow:hidden;justify-self:center;width:min(320px,100%);">
+          ${photoHtml}
+        </div>
+      </div>
+    </section>
+
+    <section class="section container" style="padding-top:0;">
+      <div class="reveal stat-strip">
+        ${(p.stats||[]).map(s=>`
+          <div class="stat-cell">
+            <div class="stat-num">${escapeHtml(s.value)}</div>
+            <div class="stat-label">${escapeHtml(s.label)}</div>
+          </div>`).join('')}
+      </div>
+    </section>
+
+    <section class="section container">
+      <div class="section-head reveal">
+        <div class="eyebrow">~/whoami</div>
+        <h2 class="section-title">A bit more about the work</h2>
+      </div>
+      <div class="glass card reveal" style="padding:40px;max-width:840px;">
+        <p style="line-height:1.85;color:var(--text-muted);font-size:15.5px;white-space:pre-line;">${escapeHtml(p.bio)}</p>
+      </div>
+    </section>
+
+    <section class="section container" style="padding-top:0;">
+      <div class="section-head reveal">
+        <div class="eyebrow">~/ventures</div>
+        <h2 class="section-title">What I run</h2>
+        <p class="section-desc">Three connected systems, one operator. See the full breakdown on the services page.</p>
+      </div>
+      <div class="reveal venture-grid">
+        ${state.services.map(s=>`
+          <div class="venture-card">
+            <div class="v-top">
+              <div><div class="v-name">${escapeHtml(s.name)}</div><div class="v-role">${escapeHtml(s.role)}</div></div>
+              <span class="status-chip ${s.status}"><span class="dot"></span>${s.status==='live'?'Live':'Building'}</span>
+            </div>
+            <p class="v-desc">${escapeHtml(s.description)}</p>
+          </div>`).join('')}
+      </div>
+    </section>
+  </div>`;
+}
+
+/* --------------------------- PAGE: SERVICES --------------------------- */
+function renderServices(){
+  return `
+  <div class="page">
+    <section class="hero container" style="min-height:auto;padding:60px 0 70px;">
+      <div class="eyebrow reveal hero-el">~/services — process list</div>
+      <h1 class="hero-title reveal hero-el" style="font-size:clamp(36px,6vw,64px);">Ventures &amp; roles I operate.</h1>
+      <p class="hero-sub reveal hero-el">Every system below is something I actively founded, co-founded, or co-own — not client work. Status reflects what's live in production right now.</p>
+    </section>
+    <section class="container" style="padding-bottom:110px;">
+      <div class="reveal venture-grid">
+        ${state.services.map(s=>`
+          <div class="venture-card">
+            <div class="v-top">
+              <div><div class="v-name">${escapeHtml(s.name)}</div><div class="v-role">${escapeHtml(s.role)}</div></div>
+              <span class="status-chip ${s.status}"><span class="dot"></span>${s.status==='live'?'Live':'Building'}</span>
+            </div>
+            <p class="v-desc">${escapeHtml(s.description)}</p>
+            <div class="v-foot">
+              <span style="font-family:var(--f-mono);font-size:11px;color:var(--text-faint);">${escapeHtml(s.id)}</span>
+              <a href="#contact" class="btn btn-ghost btn-sm magnetic" data-route-link="contact">Inquire <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
+          </div>`).join('')}
+      </div>
+    </section>
+  </div>`;
+}
+
+/* --------------------------- PAGE: PROJECTS --------------------------- */
+function renderProjects(){
+  return `
+  <div class="page">
+    <section class="hero container" style="min-height:auto;padding:60px 0 70px;">
+      <div class="eyebrow reveal hero-el">~/projects — build log</div>
+      <h1 class="hero-title reveal hero-el" style="font-size:clamp(36px,6vw,64px);">Selected engineering work.</h1>
+      <p class="hero-sub reveal hero-el">A closer look at what's shipped and what's currently in progress.</p>
+    </section>
+    <section class="container" style="padding-bottom:110px;">
+      ${state.projects.map(pr => renderProjectCard(pr)).join('')}
+      ${state.projects.length===0 ? `<div class="empty-state reveal"><i class="fa-solid fa-diagram-project"></i><h3>No projects yet</h3><p>Add one from the admin panel.</p></div>` : ''}
+    </section>
+  </div>`;
+}
+function renderProjectCard(pr){
+  const bannerInner = pr.banner
+    ? `<img src="${pr.banner}" alt="${escapeHtml(pr.title)}">`
+    : `<div class="pb-fallback"><i class="fa-solid fa-server" style="font-size:20px;"></i> ${escapeHtml(pr.title)}</div>`;
+  return `
+  <div class="glass card reveal project-card">
+    <div class="project-banner">${bannerInner}</div>
+    <div class="project-body">
+      <div class="project-head">
+        <div class="project-title">${escapeHtml(pr.title)}</div>
+        <span class="status-chip ${pr.status}"><span class="dot"></span>${pr.status==='live'?'Live':'Building'}</span>
+      </div>
+      <p class="project-desc">${escapeHtml(pr.description)}</p>
+      <div class="tag-row">${(pr.technologies||[]).map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
+      <ul class="feature-list">
+        ${(pr.features||[]).map(f=>`<li><i class="fa-solid fa-circle-check"></i>${escapeHtml(f)}</li>`).join('')}
+      </ul>
+      ${(pr.gallery&&pr.gallery.length) ? `<div class="gallery-row">${pr.gallery.map(g=>`<div class="g-item"><img src="${g}" alt=""></div>`).join('')}</div>` : ''}
+      <div class="project-links" style="margin-top:22px;">
+        ${pr.links && pr.links.live ? `<a href="${escapeHtml(pr.links.live)}" target="_blank" rel="noopener" class="btn btn-primary btn-sm magnetic"><i class="fa-solid fa-arrow-up-right-from-square"></i> Visit live</a>` : ''}
+        ${pr.links && pr.links.repo ? `<a href="${escapeHtml(pr.links.repo)}" target="_blank" rel="noopener" class="btn btn-ghost btn-sm magnetic"><i class="fa-brands fa-github"></i> Repository</a>` : ''}
+      </div>
+    </div>
+  </div>`;
+}
+
+/* --------------------------- PAGE: PRODUCTS --------------------------- */
+let productFilter = 'all';
+function renderProducts(){
+  const cats = ['all', ...new Set(state.products.map(p=>p.category).filter(Boolean))];
+  return `
+  <div class="page">
+    <section class="hero container" style="min-height:auto;padding:60px 0 60px;">
+      <div class="eyebrow reveal hero-el">~/products — catalog</div>
+      <h1 class="hero-title reveal hero-el" style="font-size:clamp(36px,6vw,64px);">Digital products.</h1>
+      <p class="hero-sub reveal hero-el">Resource packs, tools and templates — managed live from the admin panel.</p>
+    </section>
+    <section class="container" style="padding-bottom:110px;">
+      ${cats.length>1 ? `<div class="filter-row reveal" id="product-filters">
+        ${cats.map(c=>`<button class="filter-chip ${c===productFilter?'active':''}" data-cat="${escapeHtml(c)}">${c==='all'?'All':escapeHtml(c)}</button>`).join('')}
+      </div>` : ''}
+      <div class="product-grid reveal" id="product-grid">
+        ${renderProductGridItems()}
+      </div>
+    </section>
+  </div>`;
+}
+function renderProductGridItems(){
+  const items = productFilter==='all' ? state.products : state.products.filter(p=>p.category===productFilter);
+  if(items.length===0){
+    return `<div class="empty-state"><i class="fa-solid fa-box-open"></i><h3>No products here yet</h3><p>New products managed from the admin panel will show up here.</p></div>`;
+  }
+  return items.map(p=>`
+    <div class="glass card product-card">
+      <div class="product-media">
+        ${p.image ? `<img src="${p.image}" alt="${escapeHtml(p.title)}">` : `<div class="p-fallback"><i class="fa-solid fa-cube"></i></div>`}
+        <div class="product-badges">
+          ${p.featured ? `<span class="badge featured">Featured</span>` : ''}
+          ${p.sale ? `<span class="badge sale">Sale</span>` : ''}
+        </div>
+      </div>
+      <div class="product-info">
+        ${p.category ? `<div class="product-cat">${escapeHtml(p.category)}</div>` : ''}
+        <div class="product-title">${escapeHtml(p.title)}</div>
+        <p class="product-desc">${escapeHtml(p.description)}</p>
+        <div class="product-tags">${(p.tags||[]).map(t=>`<span class="tag">${escapeHtml(t)}</span>`).join('')}</div>
+        <div class="product-foot">
+          <div class="product-price">
+            ${p.sale && p.originalPrice ? `<span class="strike">${escapeHtml(p.originalPrice)}</span>` : ''}
+            ${escapeHtml(p.price || 'Free')}
+          </div>
+          <div style="display:flex;gap:8px;">
+            ${p.downloadLink ? `<a href="${escapeHtml(p.downloadLink)}" class="icon-btn" title="Download" target="_blank" rel="noopener"><i class="fa-solid fa-download"></i></a>` : ''}
+            ${p.buyLink ? `<a href="${escapeHtml(p.buyLink)}" class="btn btn-primary btn-sm" target="_blank" rel="noopener">Get it</a>` : ''}
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+/* --------------------------- PAGE: CONTACT --------------------------- */
+function renderContact(){
+  const c = state.contact;
+  const iconMap = { github:'fa-github', discord:'fa-discord', twitter:'fa-x-twitter', x:'fa-x-twitter', instagram:'fa-instagram', youtube:'fa-youtube', linkedin:'fa-linkedin' };
+  return `
+  <div class="page">
+    <section class="hero container" style="min-height:auto;padding:60px 0 60px;">
+      <div class="eyebrow reveal hero-el">~/contact — open channel</div>
+      <h1 class="hero-title reveal hero-el" style="font-size:clamp(36px,6vw,64px);">Let's talk.</h1>
+      <p class="hero-sub reveal hero-el">For studio work, hosting inquiries, or anything else — email is fastest.</p>
+    </section>
+    <section class="container" style="padding-bottom:110px;">
+      <div class="contact-grid reveal">
+        <div class="contact-pane">
+          <div class="contact-item">
+            <div class="ci-icon"><i class="fa-solid fa-envelope"></i></div>
+            <div><div class="ci-label">Email</div><div class="ci-value">${escapeHtml(c.email)}</div></div>
+            <button class="ci-copy icon-btn" id="copy-email" title="Copy email"><i class="fa-solid fa-copy"></i></button>
+          </div>
+          <div class="contact-item">
+            <div class="ci-icon"><i class="fa-brands fa-discord"></i></div>
+            <div><div class="ci-label">Discord</div><div class="ci-value">${escapeHtml(c.discord)}</div></div>
+            <button class="ci-copy icon-btn" id="copy-discord" title="Copy Discord"><i class="fa-solid fa-copy"></i></button>
+          </div>
+          ${(c.socials||[]).map(s=>`
+            <div class="contact-item">
+              <div class="ci-icon"><i class="fa-brands ${iconMap[s.platform.toLowerCase()]||'fa-link'}"></i></div>
+              <div><div class="ci-label">${escapeHtml(s.platform)}</div><div class="ci-value">${escapeHtml(s.url.replace(/^https?:\/\//,''))}</div></div>
+              <a class="ci-copy icon-btn" href="${escapeHtml(s.url)}" target="_blank" rel="noopener" title="Open"><i class="fa-solid fa-arrow-up-right-from-square"></i></a>
+            </div>`).join('')}
+          <a href="mailto:${escapeHtml(c.email)}" class="btn btn-primary magnetic" style="margin-top:26px;width:100%;"><i class="fa-solid fa-paper-plane"></i> Email directly</a>
+        </div>
+        <div class="contact-pane">
+          <form id="contact-form" novalidate>
+            <div class="form-field" id="field-name">
+              <label for="cf-name">Name</label>
+              <input type="text" id="cf-name" name="name" placeholder="Your name">
+              <div class="form-error-msg">Please enter your name.</div>
+            </div>
+            <div class="form-field" id="field-email">
+              <label for="cf-email">Email</label>
+              <input type="text" id="cf-email" name="email" placeholder="you@example.com">
+              <div class="form-error-msg">Please enter a valid email address.</div>
+            </div>
+            <div class="form-field" id="field-message">
+              <label for="cf-message">Message</label>
+              <textarea id="cf-message" name="message" rows="5" placeholder="What are you looking to build?"></textarea>
+              <div class="form-error-msg">Please enter a message (min. 10 characters).</div>
+            </div>
+            <button type="submit" class="btn btn-primary magnetic" style="width:100%;"><i class="fa-solid fa-paper-plane"></i> Send message</button>
+            <p class="form-note">This opens your email client with the message pre-filled — this static site has no backend to send mail directly.</p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </div>`;
+}
+
+/* --------------------- PAGE INTERACTION BINDINGS --------------------- */
+function bindPageInteractions(route){
+  if(route === 'products'){
+    qsa('#product-filters .filter-chip').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        productFilter = btn.dataset.cat;
+        qsa('#product-filters .filter-chip').forEach(b=> b.classList.toggle('active', b===btn));
+        qs('#product-grid').innerHTML = renderProductGridItems();
+        initCardGlow();
+      });
+    });
+  }
+  if(route === 'contact'){
+    qs('#copy-email')?.addEventListener('click', ()=> copyText(state.contact.email, 'Email'));
+    qs('#copy-discord')?.addEventListener('click', ()=> copyText(state.contact.discord, 'Discord'));
+    const form = qs('#contact-form');
+    form?.addEventListener('submit', e=>{
+      e.preventDefault();
+      const name = qs('#cf-name').value.trim();
+      const email = qs('#cf-email').value.trim();
+      const message = qs('#cf-message').value.trim();
+      let valid = true;
+      const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+      toggleFieldError('field-name', name.length===0);
+      toggleFieldError('field-email', !emailOk);
+      toggleFieldError('field-message', message.length<10);
+      if(name.length===0 || !emailOk || message.length<10){ return; }
+      const subject = encodeURIComponent(`New inquiry from ${name}`);
+      const body = encodeURIComponent(`${message}\n\n— ${name} (${email})`);
+      window.location.href = `mailto:${state.contact.email}?subject=${subject}&body=${body}`;
+      toast('Opening your email client…');
+    });
+  }
+}
+function toggleFieldError(id, hasError){
+  const el = qs('#'+id);
+  if(el) el.classList.toggle('error', !!hasError);
+}
+
+/* ------------------------------ 10. ADMIN ------------------------------ */
+let adminTab = 'profile';
+let productEditingId = null;
+let projectEditingId = null;
+const ADMIN_TABS = [
+  { key:'profile', label:'Profile', icon:'fa-user' },
+  { key:'services', label:'Services', icon:'fa-server' },
+  { key:'projects', label:'Projects', icon:'fa-diagram-project' },
+  { key:'products', label:'Products', icon:'fa-box-open' },
+  { key:'contact', label:'Contact', icon:'fa-envelope' },
+  { key:'theme', label:'Branding & theme', icon:'fa-palette' },
+  { key:'data', label:'Data', icon:'fa-database' }
+];
+
+function renderAdmin(){
+  const root = qs('#admin-root');
+  root.classList.add('open');
+  const authed = sessionStorage.getItem(ADMIN_AUTH_KEY) === '1';
+  if(!authed){
+    root.innerHTML = adminLoginTemplate();
+    bindAdminLogin();
+    return;
+  }
+  root.innerHTML = adminShellTemplate();
+  bindAdminShell();
+  renderAdminTab(adminTab);
+}
+
+function adminLoginTemplate(){
+  return `
+  <div class="admin-login">
+    <a href="#about" class="admin-back" data-route-link="about"><i class="fa-solid fa-arrow-left"></i> Back to site</a>
+    <div class="bg-glow" style="top:-10%;"></div>
+    <div class="glass admin-login-card">
+      <div class="al-icon"><i class="fa-solid fa-terminal"></i></div>
+      <h2>Admin access</h2>
+      <p>This panel isn't linked anywhere on the public site. Enter the admin password to manage content.</p>
+      <div class="admin-field">
+        <label for="admin-pass">Password</label>
+        <input type="password" id="admin-pass" placeholder="••••••••" autocomplete="off">
+      </div>
+      <div id="admin-login-error" style="display:none;color:var(--danger);font-size:12.5px;font-family:var(--f-mono);margin:-8px 0 14px;">Incorrect password. Try again.</div>
+      <button class="btn btn-primary" id="admin-login-btn" type="button"><i class="fa-solid fa-unlock"></i> Enter dashboard</button>
+    </div>
+  </div>`;
+}
+function bindAdminLogin(){
+  const attempt = ()=>{
+    const val = qs('#admin-pass').value;
+    if(val === state.security.adminPassword){
+      sessionStorage.setItem(ADMIN_AUTH_KEY, '1');
+      renderAdmin();
+    } else {
+      qs('#admin-login-error').style.display = 'block';
+      if(window.gsap) gsap.fromTo('.admin-login-card', { x:-8 }, { x:0, duration:0.4, ease:'elastic.out(1,0.35)' });
+    }
+  };
+  qs('#admin-login-btn').addEventListener('click', attempt);
+  qs('#admin-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') attempt(); });
+  setTimeout(()=> qs('#admin-pass')?.focus(), 100);
+}
+
+function adminShellTemplate(){
+  return `
+  <div class="admin-shell">
+    <aside class="admin-sidebar">
+      <div class="as-brand">ADMIN — ${escapeHtml(state.siteName)}</div>
+      ${ADMIN_TABS.map(t=>`<button class="admin-nav-item ${t.key===adminTab?'active':''}" data-tab="${t.key}" type="button"><i class="fa-solid ${t.icon}"></i>${t.label}</button>`).join('')}
+      <div class="as-foot">
+        <a href="#about" class="admin-nav-item" data-route-link="about"><i class="fa-solid fa-eye"></i>View site</a>
+        <button class="admin-nav-item" id="admin-logout-btn" type="button"><i class="fa-solid fa-right-from-bracket"></i>Log out</button>
+      </div>
+    </aside>
+    <main class="admin-main" id="admin-main-content"></main>
+  </div>`;
+}
+function bindAdminShell(){
+  qsa('.admin-nav-item[data-tab]').forEach(btn=> btn.addEventListener('click', ()=>{
+    adminTab = btn.dataset.tab;
+    qsa('.admin-nav-item[data-tab]').forEach(b=> b.classList.toggle('active', b===btn));
+    productEditingId = null; projectEditingId = null;
+    renderAdminTab(adminTab);
+  }));
+  qs('#admin-logout-btn').addEventListener('click', ()=>{
+    sessionStorage.removeItem(ADMIN_AUTH_KEY);
+    navigateTo('about');
+  });
+}
+function renderAdminTab(tab){
+  const map = { profile:renderProfileTab, services:renderServicesTab, projects:renderProjectsTab, products:renderProductsTab, contact:renderContactTab, theme:renderThemeTab, data:renderDataTab };
+  (map[tab] || renderProfileTab)();
+}
+
+/* --- Admin: Profile tab --- */
+function renderProfileTab(){
+  const p = state.profile;
+  qs('#admin-main-content').innerHTML = `
+    <div class="admin-panel-head"><h2>Profile</h2><p>Your public identity — shown on the About page and site-wide.</p></div>
+    <div class="glass admin-block">
+      <h3><i class="fa-solid fa-signature"></i> Site identity</h3>
+      <div class="admin-grid-2">
+        <div class="admin-field"><label>Site name</label><input type="text" id="af-sitename" value="${escapeHtml(state.siteName)}"></div>
+        <div class="admin-field"><label>Logo image (optional)</label>
+          <div class="upload-box">
+            <div class="upload-preview" id="logo-preview">${state.logoImage?`<img src="${state.logoImage}">`:'<i class="fa-solid fa-image"></i>'}</div>
+            <div><input type="file" accept="image/*" id="af-logo-file"><div class="hint">Leave empty to use the first letter of your site name.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="glass admin-block">
+      <h3><i class="fa-solid fa-id-card"></i> About you</h3>
+      <div class="admin-grid-2">
+        <div class="admin-field"><label>Full name</label><input type="text" id="af-name" value="${escapeHtml(p.name)}"></div>
+        <div class="admin-field"><label>Title / tagline</label><input type="text" id="af-title" value="${escapeHtml(p.title)}"></div>
+      </div>
+      <div class="admin-field"><label>Bio</label><textarea id="af-bio" rows="7">${escapeHtml(p.bio)}</textarea></div>
+      <div class="admin-field">
+        <label>Profile photo</label>
+        <div class="upload-box">
+          <div class="upload-preview" id="photo-preview">${p.photo?`<img src="${p.photo}">`:'<i class="fa-solid fa-user"></i>'}</div>
+          <div><input type="file" accept="image/*" id="af-photo-file"><div class="hint">Square images work best.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="glass admin-block">
+      <h3><i class="fa-solid fa-chart-simple"></i> Stats strip</h3>
+      <div id="stats-list">${(p.stats||[]).map(s=>statRowTemplate(s)).join('')}</div>
+      <button class="btn btn-ghost btn-sm" id="add-stat-btn" type="button"><i class="fa-solid fa-plus"></i> Add stat</button>
+    </div>
+    <div class="admin-actions-row">
+      <button class="btn btn-primary" id="save-profile-btn" type="button"><i class="fa-solid fa-check"></i> Save changes</button>
+    </div>`;
+  bindProfileTab();
+}
+function statRowTemplate(s){
+  return `<div class="admin-grid-2" style="margin-bottom:10px;" data-stat-row>
+    <input type="text" class="stat-value" placeholder="Value e.g. 5+" value="${escapeHtml(s.value)}">
+    <div style="display:flex;gap:8px;">
+      <input type="text" class="stat-label" placeholder="Label" value="${escapeHtml(s.label)}" style="flex:1;">
+      <button class="icon-btn danger remove-stat-btn" type="button"><i class="fa-solid fa-trash"></i></button>
+    </div>
+  </div>`;
+}
+function bindProfileTab(){
+  qs('#af-logo-file').addEventListener('change', async e=>{
+    const f = e.target.files[0]; if(!f) return;
+    const url = await fileToDataUrl(f);
+    state.logoImage = url;
+    qs('#logo-preview').innerHTML = `<img src="${url}">`;
+  });
+  qs('#af-photo-file').addEventListener('change', async e=>{
+    const f = e.target.files[0]; if(!f) return;
+    const url = await fileToDataUrl(f);
+    state.profile.photo = url;
+    qs('#photo-preview').innerHTML = `<img src="${url}">`;
+  });
+  qs('#add-stat-btn').addEventListener('click', ()=>{
+    qs('#stats-list').insertAdjacentHTML('beforeend', statRowTemplate({label:'', value:''}));
+    bindStatRemoveButtons();
+  });
+  bindStatRemoveButtons();
+  qs('#save-profile-btn').addEventListener('click', ()=>{
+    state.siteName = qs('#af-sitename').value.trim() || 'ItzYUG';
+    state.profile.name = qs('#af-name').value.trim();
+    state.profile.title = qs('#af-title').value.trim();
+    state.profile.bio = qs('#af-bio').value;
+    state.profile.stats = qsa('[data-stat-row]').map(r=>({ value: qs('.stat-value',r).value.trim(), label: qs('.stat-label',r).value.trim() })).filter(s=>s.label||s.value);
+    saveState();
+    toast('Profile saved');
+  });
+}
+function bindStatRemoveButtons(){
+  qsa('.remove-stat-btn').forEach(btn=> btn.onclick = ()=> btn.closest('[data-stat-row]').remove());
+}
+
+/* --- Admin: Services tab --- */
+function renderServicesTab(){
+  qs('#admin-main-content').innerHTML = `
+    <div class="admin-panel-head"><h2>Services</h2><p>The ventures shown on your About and Services pages.</p></div>
+    <div id="services-list">${state.services.map(s=>serviceFormTemplate(s)).join('')}</div>
+    <div class="admin-actions-row">
+      <button class="btn btn-ghost" id="add-service-btn" type="button"><i class="fa-solid fa-plus"></i> Add service</button>
+      <button class="btn btn-primary" id="save-services-btn" type="button"><i class="fa-solid fa-check"></i> Save changes</button>
+    </div>`;
+  bindServicesTab();
+}
+function serviceFormTemplate(s){
+  return `<div class="glass admin-block" data-service-row data-service-id="${s.id}">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;"><i class="fa-solid fa-server"></i> ${escapeHtml(s.name)||'New service'}</h3>
+      <button class="icon-btn danger remove-service-btn" type="button"><i class="fa-solid fa-trash"></i></button>
+    </div>
+    <div class="admin-grid-2">
+      <div class="admin-field"><label>Name</label><input type="text" class="svc-name" value="${escapeHtml(s.name)}"></div>
+      <div class="admin-field"><label>Role</label><input type="text" class="svc-role" value="${escapeHtml(s.role)}"></div>
+    </div>
+    <div class="admin-field"><label>Status</label>
+      <select class="svc-status">
+        <option value="live" ${s.status==='live'?'selected':''}>🟢 Live</option>
+        <option value="dev" ${s.status==='dev'?'selected':''}>🟡 Under development</option>
+      </select>
+    </div>
+    <div class="admin-field"><label>Description</label><textarea class="svc-desc" rows="3">${escapeHtml(s.description)}</textarea></div>
+  </div>`;
+}
+function bindServicesTab(){
+  qs('#add-service-btn').addEventListener('click', ()=>{
+    state.services.push({ id:uid('svc'), name:'New venture', status:'dev', role:'Role', description:'' });
+    renderServicesTab();
+  });
+  qsa('.remove-service-btn').forEach(btn=> btn.addEventListener('click', ()=> btn.closest('[data-service-row]').remove()));
+  qs('#save-services-btn').addEventListener('click', ()=>{
+    state.services = qsa('[data-service-row]').map(r=>({
+      id: r.dataset.serviceId,
+      name: qs('.svc-name',r).value.trim(),
+      role: qs('.svc-role',r).value.trim(),
+      status: qs('.svc-status',r).value,
+      description: qs('.svc-desc',r).value.trim()
+    }));
+    saveState();
+    toast('Services saved');
+    renderServicesTab();
+  });
+}
+
+/* --- Admin: Projects tab --- */
+function renderProjectsTab(){
+  qs('#admin-main-content').innerHTML = `
+    <div class="admin-panel-head"><h2>Projects</h2><p>Case studies shown on your Projects page.</p></div>
+    <div id="admin-projects-list">${state.projects.map(p=>projectListItemTemplate(p)).join('')}</div>
+    ${state.projects.length===0?'<p style="color:var(--text-faint);font-size:13px;margin-bottom:16px;">No projects yet — add your first one below.</p>':''}
+    <button class="btn btn-ghost" id="add-project-btn" type="button"><i class="fa-solid fa-plus"></i> Add project</button>`;
+  bindProjectsTab();
+}
+function projectListItemTemplate(p){
+  const isEditing = projectEditingId === p.id;
+  return `<div data-project-id="${p.id}">
+    <div class="admin-list-item">
+      <div class="ali-thumb">${p.banner?`<img src="${p.banner}">`:'<i class="fa-solid fa-diagram-project"></i>'}</div>
+      <div class="ali-main"><div class="ali-title">${escapeHtml(p.title)||'Untitled project'}</div><div class="ali-sub">${p.status==='live'?'Live':'Building'}</div></div>
+      <div class="ali-actions">
+        <button class="icon-btn edit-project-btn" type="button" title="Edit"><i class="fa-solid fa-pen"></i></button>
+        <button class="icon-btn danger delete-project-btn" type="button" title="Delete"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+    ${isEditing?projectEditFormTemplate(p):''}
+  </div>`;
+}
+function projectEditFormTemplate(p){
+  return `<div class="admin-form-panel" data-project-form="${p.id}">
+    <div class="admin-field"><label>Title</label><input type="text" class="prf-title" value="${escapeHtml(p.title)}"></div>
+    <div class="admin-field"><label>Description</label><textarea class="prf-desc" rows="3">${escapeHtml(p.description)}</textarea></div>
+    <div class="admin-grid-2">
+      <div class="admin-field"><label>Technologies (comma separated)</label><input type="text" class="prf-tech" value="${(p.technologies||[]).join(', ')}"></div>
+      <div class="admin-field"><label>Status</label>
+        <select class="prf-status"><option value="live" ${p.status==='live'?'selected':''}>🟢 Live</option><option value="dev" ${p.status==='dev'?'selected':''}>🟡 Building</option></select>
+      </div>
+    </div>
+    <div class="admin-field"><label>Features (comma separated)</label><input type="text" class="prf-features" value="${(p.features||[]).join(', ')}"></div>
+    <div class="admin-grid-2">
+      <div class="admin-field"><label>Live URL</label><input type="text" class="prf-live" value="${escapeHtml((p.links&&p.links.live)||'')}"></div>
+      <div class="admin-field"><label>Repository URL</label><input type="text" class="prf-repo" value="${escapeHtml((p.links&&p.links.repo)||'')}"></div>
+    </div>
+    <div class="admin-field">
+      <label>Banner image</label>
+      <div class="upload-box"><div class="upload-preview prf-preview">${p.banner?`<img src="${p.banner}">`:'<i class="fa-solid fa-image"></i>'}</div><input type="file" accept="image/*" class="prf-banner-file"></div>
+    </div>
+    <div class="admin-actions-row">
+      <button class="btn btn-primary btn-sm save-project-btn" type="button"><i class="fa-solid fa-check"></i> Save project</button>
+      <button class="btn btn-ghost btn-sm cancel-project-btn" type="button">Cancel</button>
+    </div>
+  </div>`;
+}
+function bindProjectsTab(){
+  qs('#add-project-btn').addEventListener('click', ()=>{
+    const p = { id:uid('prj'), title:'New project', banner:'', description:'', technologies:[], features:[], status:'dev', gallery:[], links:{live:'',repo:''} };
+    state.projects.push(p);
+    projectEditingId = p.id;
+    renderProjectsTab();
+  });
+  qsa('.edit-project-btn').forEach(btn=> btn.addEventListener('click', ()=>{
+    const id = btn.closest('[data-project-id]').dataset.projectId;
+    projectEditingId = projectEditingId===id ? null : id;
+    renderProjectsTab();
+  }));
+  qsa('.delete-project-btn').forEach(btn=> btn.addEventListener('click', ()=>{
+    const id = btn.closest('[data-project-id]').dataset.projectId;
+    if(confirm('Delete this project? This cannot be undone.')){
+      state.projects = state.projects.filter(p=>p.id!==id);
+      saveState(); renderProjectsTab(); toast('Project deleted');
+    }
+  }));
+  qsa('.cancel-project-btn').forEach(btn=> btn.addEventListener('click', ()=>{ projectEditingId=null; renderProjectsTab(); }));
+  qsa('.prf-banner-file').forEach(input=> input.addEventListener('change', async e=>{
+    const f = e.target.files[0]; if(!f) return;
+    const url = await fileToDataUrl(f);
+    const wrap = input.closest('[data-project-form]');
+    qs('.prf-preview',wrap).innerHTML = `<img src="${url}">`;
+    wrap.dataset.pendingBanner = url;
+  }));
+  qsa('.save-project-btn').forEach(btn=> btn.addEventListener('click', ()=>{
+    const form = btn.closest('[data-project-form]');
+    const id = form.dataset.projectForm;
+    const p = state.projects.find(x=>x.id===id);
+    if(!p) return;
+    p.title = qs('.prf-title',form).value.trim() || 'Untitled project';
+    p.description = qs('.prf-desc',form).value.trim();
+    p.technologies = qs('.prf-tech',form).value.split(',').map(t=>t.trim()).filter(Boolean);
+    p.features = qs('.prf-features',form).value.split(',').map(t=>t.trim()).filter(Boolean);
+    p.status = qs('.prf-status',form).value;
+    p.links = { live: qs('.prf-live',form).value.trim(), repo: qs('.prf-repo',form).value.trim() };
+    if(form.dataset.pendingBanner) p.banner = form.dataset.pendingBanner;
+    projectEditingId = null;
+    saveState(); renderProjectsTab(); toast('Project saved');
+  }));
+}
+
+/* --- Admin: Products tab (full CRUD product manager) --- */
+function renderProductsTab(){
+  qs('#admin-main-content').innerHTML = `
+    <div class="admin-panel-head"><h2>Products</h2><p>Full control over your catalog — nothing on the Products page is hardcoded.</p></div>
+    <div id="admin-products-list">${state.products.map(p=>productListItemTemplate(p)).join('')}</div>
+    ${state.products.length===0?'<p style="color:var(--text-faint);font-size:13px;margin-bottom:16px;">No products yet — add your first one below.</p>':''}
+    <button class="btn btn-ghost" id="add-product-btn" type="button"><i class="fa-solid fa-plus"></i> Add product</button>`;
+  bindProductsTab();
+}
+function productListItemTemplate(p){
+  const isEditing = productEditingId === p.id;
+  return `<div data-product-id="${p.id}">
+    <div class="admin-list-item">
+      <div class="ali-thumb">${p.image?`<img src="${p.image}">`:'<i class="fa-solid fa-cube"></i>'}</div>
+      <div class="ali-main">
+        <div class="ali-title">${escapeHtml(p.title)||'Untitled product'}</div>
+        <div class="ali-sub">${escapeHtml(p.category||'uncategorized')} · ${escapeHtml(p.price||'Free')}${p.featured?' · featured':''}${p.sale?' · sale':''}</div>
+      </div>
+      <div class="ali-actions">
+        <button class="icon-btn move-up-btn" title="Move up" type="button"><i class="fa-solid fa-arrow-up"></i></button>
+        <button class="icon-btn move-down-btn" title="Move down" type="button"><i class="fa-solid fa-arrow-down"></i></button>
+        <button class="icon-btn edit-product-btn" title="Edit" type="button"><i class="fa-solid fa-pen"></i></button>
+        <button class="icon-btn danger delete-product-btn" title="Delete" type="button"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    </div>
+    ${isEditing?productEditFormTemplate(p):''}
+  </div>`;
+}
+function productEditFormTemplate(p){
+  return `<div class="admin-form-panel" data-product-form="${p.id}">
+    <div class="admin-grid-2">
+      <div class="admin-field"><label>Title</label><input type="text" class="pf-title" value="${escapeHtml(p.title)}"></div>
+      <div class="admin-field"><label>Category</label><input type="text" class="pf-category" value="${escapeHtml(p.category)}"></div>
+    </div>
+    <div class="admin-field"><label>Description</label><textarea class="pf-desc" rows="3">${escapeHtml(p.description)}</textarea></div>
+    <div class="admin-grid-2">
+      <div class="admin-field"><label>Price</label><input type="text" class="pf-price" placeholder="e.g. ₹499 or Free" value="${escapeHtml(p.price)}"></div>
+      <div class="admin-field"><label>Original price (shown struck through on sale)</label><input type="text" class="pf-original" value="${escapeHtml(p.originalPrice||'')}"></div>
+    </div>
+    <div class="admin-field"><label>Tags (comma separated)</label><input type="text" class="pf-tags" value="${(p.tags||[]).join(', ')}"></div>
+    <div class="admin-grid-2">
+      <div class="admin-field"><label>External buy link</label><input type="text" class="pf-buy" value="${escapeHtml(p.buyLink||'')}"></div>
+      <div class="admin-field"><label>Download link</label><input type="text" class="pf-download" value="${escapeHtml(p.downloadLink||'')}"></div>
+    </div>
+    <div class="admin-field">
+      <label>Product image</label>
+      <div class="upload-box"><div class="upload-preview pf-preview">${p.image?`<img src="${p.image}">`:'<i class="fa-solid fa-image"></i>'}</div><input type="file" accept="image/*" class="pf-image-file"></div>
+    </div>
+    <div class="admin-toggle-row">
+      <div><div class="att-label">Featured</div><div class="att-sub">Shows a featured badge on the catalog</div></div>
+      <div class="switch pf-featured ${p.featured?'on':''}"></div>
+    </div>
+    <div class="admin-toggle-row">
+      <div><div class="att-label">On sale</div><div class="att-sub">Shows a sale badge and strikes the original price</div></div>
+      <div class="switch pf-sale ${p.sale?'on':''}"></div>
+    </div>
+    <div class="admin-actions-row">
+      <button class="btn btn-primary btn-sm save-product-btn" type="button"><i class="fa-solid fa-check"></i> Save product</button>
+      <button class="btn btn-ghost btn-sm cancel-product-btn" type="button">Cancel</button>
+    </div>
+  </div>`;
+}
+function bindProductsTab(){
+  qs('#add-product-btn').addEventListener('click', ()=>{
+    const p = { id:uid('prod'), title:'New product', category:'', description:'', price:'', originalPrice:'', tags:[], buyLink:'', downloadLink:'', image:'', featured:false, sale:false };
+    state.products.push(p);
+    productEditingId = p.id;
+    renderProductsTab();
+  });
+  qsa('.edit-product-btn').forEach(btn=> btn.addEventListener('click', ()=>{
+    const id = btn.closest('[data-product-id]').dataset.productId;
+    productEditingId = productEditingId===id ? null : id;
+    renderProductsTab();
+  }));
+  qsa('.delete-product-btn').forEach(btn=> btn.addEventListener('click', ()=>{
+    const id = btn.closest('[data-product-id]').dataset.productId;
+    if(confirm('Delete this product? This cannot be undone.')){
+      state.products = state.products.filter(p=>p.id!==id);
+      saveState(); renderProductsTab(); toast('Product deleted');
+    }
+  }));
+  qsa('.move-up-btn').forEach(btn=> btn.addEventListener('click', ()=>{
+    const id = btn.closest('[data-product-id]').dataset.productId;
+    const idx = state.products.findIndex(p=>p.id===id);
+    if(idx>0){ [state.products[idx-1],state.products[idx]] = [state.products[idx],state.products[idx-1]]; saveState(); renderProductsTab(); }
+  }));
+  qsa('.move-down-btn').forEach(btn=> btn.addEventListener('click', ()=>{
+    const id = btn.closest('[data-product-id]').dataset.productId;
+    const idx = state.products.findIndex(p=>p.id===id);
+    if(idx>=0 && idx < state.products.length-1){ [state.products[idx+1],state.products[idx]] = [state.products[idx],state.products[idx+1]]; saveState(); renderProductsTab(); }
+  }));
+  qsa('.cancel-product-btn').forEach(btn=> btn.addEventListener('click', ()=>{ productEditingId=null; renderProductsTab(); }));
+  qsa('.pf-featured, .pf-sale').forEach(sw=> sw.addEventListener('click', ()=> sw.classList.toggle('on')));
+  qsa('.pf-image-file').forEach(input=> input.addEventListener('change', async e=>{
+    const f = e.target.files[0]; if(!f) return;
+    const url = await fileToDataUrl(f);
+    const wrap = input.closest('[data-product-form]');
+    qs('.pf-preview',wrap).innerHTML = `<img src="${url}">`;
+    wrap.dataset.pendingImage = url;
+  }));
+  qsa('.save-product-btn').forEach(btn=> btn.addEventListener('click', ()=>{
+    const form = btn.closest('[data-product-form]');
+    const id = form.dataset.productForm;
+    const p = state.products.find(x=>x.id===id);
+    if(!p) return;
+    p.title = qs('.pf-title',form).value.trim() || 'Untitled product';
+    p.category = qs('.pf-category',form).value.trim();
+    p.description = qs('.pf-desc',form).value.trim();
+    p.price = qs('.pf-price',form).value.trim();
+    p.originalPrice = qs('.pf-original',form).value.trim();
+    p.tags = qs('.pf-tags',form).value.split(',').map(t=>t.trim()).filter(Boolean);
+    p.buyLink = qs('.pf-buy',form).value.trim();
+    p.downloadLink = qs('.pf-download',form).value.trim();
+    p.featured = qs('.pf-featured',form).classList.contains('on');
+    p.sale = qs('.pf-sale',form).classList.contains('on');
+    if(form.dataset.pendingImage) p.image = form.dataset.pendingImage;
+    productEditingId = null;
+    saveState(); renderProductsTab(); toast('Product saved');
+  }));
+}
+
+/* --- Admin: Contact tab --- */
+function renderContactTab(){
+  const c = state.contact;
+  qs('#admin-main-content').innerHTML = `
+    <div class="admin-panel-head"><h2>Contact</h2><p>How people reach you — shown on the Contact page and in the footer.</p></div>
+    <div class="glass admin-block">
+      <div class="admin-grid-2">
+        <div class="admin-field"><label>Email</label><input type="text" id="cf-admin-email" value="${escapeHtml(c.email)}"></div>
+        <div class="admin-field"><label>Discord username</label><input type="text" id="cf-admin-discord" value="${escapeHtml(c.discord)}"></div>
+      </div>
+    </div>
+    <div class="glass admin-block">
+      <h3><i class="fa-solid fa-share-nodes"></i> Social links</h3>
+      <div id="socials-list">${(c.socials||[]).map(s=>socialRowTemplate(s)).join('')}</div>
+      <button class="btn btn-ghost btn-sm" id="add-social-btn" type="button"><i class="fa-solid fa-plus"></i> Add social link</button>
+      <p class="tag-input-note">Platform names matching github, discord, twitter/x, instagram, youtube or linkedin get the matching icon automatically.</p>
+    </div>
+    <div class="admin-actions-row">
+      <button class="btn btn-primary" id="save-contact-btn" type="button"><i class="fa-solid fa-check"></i> Save changes</button>
+    </div>`;
+  bindContactTab();
+}
+function socialRowTemplate(s){
+  return `<div class="admin-grid-2" style="margin-bottom:10px;" data-social-row>
+    <input type="text" class="soc-platform" placeholder="Platform e.g. github" value="${escapeHtml(s.platform)}">
+    <div style="display:flex;gap:8px;">
+      <input type="text" class="soc-url" placeholder="URL" value="${escapeHtml(s.url)}" style="flex:1;">
+      <button class="icon-btn danger remove-social-btn" type="button"><i class="fa-solid fa-trash"></i></button>
+    </div>
+  </div>`;
+}
+function bindContactTab(){
+  qs('#add-social-btn').addEventListener('click', ()=>{
+    qs('#socials-list').insertAdjacentHTML('beforeend', socialRowTemplate({platform:'',url:''}));
+    bindSocialRemoveButtons();
+  });
+  bindSocialRemoveButtons();
+  qs('#save-contact-btn').addEventListener('click', ()=>{
+    state.contact.email = qs('#cf-admin-email').value.trim();
+    state.contact.discord = qs('#cf-admin-discord').value.trim();
+    state.contact.socials = qsa('[data-social-row]').map(r=>({ platform:qs('.soc-platform',r).value.trim(), url:qs('.soc-url',r).value.trim() })).filter(s=>s.platform&&s.url);
+    saveState();
+    toast('Contact info saved');
+  });
+}
+function bindSocialRemoveButtons(){
+  qsa('.remove-social-btn').forEach(btn=> btn.onclick = ()=> btn.closest('[data-social-row]').remove());
+}
+
+/* --- Admin: Theme tab --- */
+function renderThemeTab(){
+  const presets = [
+    { a:'#4fd1ff', b:'#7c8cff', name:'Signal blue (default)' },
+    { a:'#35d68c', b:'#4fd1ff', name:'Live green' },
+    { a:'#ffb454', b:'#ff6b6b', name:'Amber alert' },
+    { a:'#c084fc', b:'#4fd1ff', name:'Violet' },
+    { a:'#ff6b6b', b:'#ffb454', name:'Signal red' }
+  ];
+  qs('#admin-main-content').innerHTML = `
+    <div class="admin-panel-head"><h2>Branding &amp; theme</h2><p>Accent colors used across buttons, links and highlights site-wide.</p></div>
+    <div class="glass admin-block">
+      <h3><i class="fa-solid fa-palette"></i> Accent presets</h3>
+      <div class="color-swatches" id="theme-swatches">
+        ${presets.map(p=>`<div class="swatch ${state.theme.accent===p.a?'selected':''}" style="background:linear-gradient(135deg,${p.a},${p.b});" data-a="${p.a}" data-b="${p.b}" title="${p.name}"></div>`).join('')}
+      </div>
+      <div class="admin-grid-2" style="margin-top:20px;">
+        <div class="admin-field"><label>Custom accent (primary)</label><input type="text" id="theme-accent" value="${state.theme.accent}"></div>
+        <div class="admin-field"><label>Custom accent (secondary)</label><input type="text" id="theme-accent2" value="${state.theme.accent2}"></div>
+      </div>
+    </div>
+    <div class="glass admin-block">
+      <h3><i class="fa-solid fa-lock"></i> Admin password</h3>
+      <div class="admin-field"><label>New password</label><input type="password" id="theme-newpass" placeholder="Leave blank to keep current"></div>
+      <div class="security-note"><i class="fa-solid fa-triangle-exclamation"></i>
+        <div>This check runs entirely in the browser — anyone who views this page's source can read it. It's fine for keeping the panel out of casual visitors' way, not for protecting anything sensitive.</div>
+      </div>
+    </div>
+    <div class="admin-actions-row">
+      <button class="btn btn-primary" id="save-theme-btn" type="button"><i class="fa-solid fa-check"></i> Save changes</button>
+    </div>`;
+  bindThemeTab();
+}
+function bindThemeTab(){
+  qsa('#theme-swatches .swatch').forEach(sw=> sw.addEventListener('click', ()=>{
+    qs('#theme-accent').value = sw.dataset.a;
+    qs('#theme-accent2').value = sw.dataset.b;
+    qsa('#theme-swatches .swatch').forEach(s=> s.classList.remove('selected'));
+    sw.classList.add('selected');
+  }));
+  qs('#save-theme-btn').addEventListener('click', ()=>{
+    const a = qs('#theme-accent').value.trim(), b = qs('#theme-accent2').value.trim();
+    if(/^#[0-9a-fA-F]{6}$/.test(a)) state.theme.accent = a;
+    if(/^#[0-9a-fA-F]{6}$/.test(b)) state.theme.accent2 = b;
+    const newPass = qs('#theme-newpass').value;
+    if(newPass.trim().length>0) state.security.adminPassword = newPass.trim();
+    saveState();
+    toast('Theme saved');
+    renderThemeTab();
+  });
+}
+
+/* --- Admin: Data tab (export/import/reset) --- */
+function renderDataTab(){
+  qs('#admin-main-content').innerHTML = `
+    <div class="admin-panel-head"><h2>Data</h2><p>Back up or restore everything in this dashboard. There's no server here — this file is the whole backend.</p></div>
+    <div class="glass admin-block">
+      <h3><i class="fa-solid fa-database"></i> Backup &amp; restore</h3>
+      <p style="color:var(--text-muted);font-size:13px;margin-bottom:18px;">Edits save to this browser automatically. Export a backup before clearing browser data or moving to another device.</p>
+      <div class="data-actions">
+        <button class="btn btn-ghost" id="export-data-btn" type="button"><i class="fa-solid fa-download"></i> Export JSON</button>
+        <button class="btn btn-ghost" id="import-data-btn" type="button"><i class="fa-solid fa-upload"></i> Import JSON</button>
+        <input type="file" id="import-data-file" accept="application/json" style="display:none;">
+        <button class="btn btn-ghost" id="reset-data-btn" type="button" style="color:var(--danger);border-color:rgba(255,107,107,.35);"><i class="fa-solid fa-arrow-rotate-left"></i> Reset to defaults</button>
+      </div>
+    </div>
+    ${!storageAvailable ? `<div class="security-note"><i class="fa-solid fa-triangle-exclamation"></i><div>This preview environment is blocking local storage, so edits won't persist between reloads here. Once you download this file and host it on your own domain, saving will work normally.</div></div>` : ''}`;
+  bindDataTab();
+}
+function bindDataTab(){
+  qs('#export-data-btn').addEventListener('click', ()=>{
+    const blob = new Blob([JSON.stringify(state,null,2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'itzyug-site-data.json'; a.click();
+    URL.revokeObjectURL(url);
+    toast('Exported site-data.json');
+  });
+  qs('#import-data-btn').addEventListener('click', ()=> qs('#import-data-file').click());
+  qs('#import-data-file').addEventListener('change', async e=>{
+    const f = e.target.files[0]; if(!f) return;
+    try{
+      const text = await f.text();
+      const parsed = JSON.parse(text);
+      state = Object.assign(structuredClone(SITE_DEFAULTS), parsed);
+      saveState();
+      toast('Data imported');
+      renderAdmin();
+    }catch(err){ toast('Invalid JSON file', 'fa-circle-exclamation'); }
+  });
+  qs('#reset-data-btn').addEventListener('click', ()=>{
+    if(confirm('Reset all site content to the original defaults? This cannot be undone.')){
+      state = structuredClone(SITE_DEFAULTS);
+      saveState();
+      toast('Reset to defaults');
+      renderAdmin();
+    }
+  });
+}
+
+/* ------------------------------ 11. BOOTSTRAP ------------------------------ */
+function onAppReady(){
+  router();
+}
+
+function initGlobalKeys(){
+  window.addEventListener('keydown', e=>{
+    if(e.key === 'Escape' && document.body.classList.contains('menu-open')) closeMobileMenu();
+  });
+  qs('#mobile-menu .mm-bg').addEventListener('click', closeMobileMenu);
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  if(window.gsap && window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
+  applyTheme();
+  renderChrome();
+  initThreeBackground();
+  initLenis();
+  initCursor();
+  initNavScrollState();
+  initScrollProgress();
+  initMobileMenu();
+  initCmdk();
+  initGlobalKeys();
+  window.addEventListener('hashchange', router);
+  runLoader();
+});
+</script>
+</body>
+</html>
